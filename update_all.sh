@@ -24,11 +24,16 @@ readonly RED='\033[31m'   # Red
 readonly GREEN='\033[32m' # Green
 readonly CLEAR='\033[0m'  # Clear color and formatting
 
-# Check if script is run with sudo
-if [ "$EUID" -ne 0 ]; then
-    echo "Please run this script with sudo."
-    exit 1
-fi
+# Global Variables
+readonly SUDO_USER=$(logname)
+
+# Function to check if script is run with sudo
+check_sudo() {
+    if [ "$EUID" -ne 0 ]; then
+        echo -e "${RED}Please run this script with sudo!!!${CLEAR}"
+        return 255
+    fi
+}
 
 # OS Update Function
 
@@ -84,25 +89,23 @@ update_pacman() {
 
 # Function to update os based on their type
 update_os() {
-    # Check if the OS is Debian
-    if [ -f /etc/lsb-release ] || [ -f /etc/debian_version ]; then
-        update_debian
-    fi
+    echo -e "${GREEN}Update OS Packages${CLEAR}"
 
-    # Check if the OS is RPM based
-    if [ -f /etc/redhat-release ] || [ -f /etc/centos-release ]; then
-        update_rpm
-        exit 0
+    # Check if script is run with sudo
+    if check_sudo; then
+        # Check if the OS is Debian
+        if [ -f /etc/lsb-release ] || [ -f /etc/debian_version ]; then
+            update_debian
+        # Check if the OS is RPM based
+        elif [ -f /etc/redhat-release ] || [ -f /etc/centos-release ]; then
+            update_rpm
+        # Check if the OS is Pacman based
+        elif [ -f /etc/arch-release ]; then
+            update_pacman
+        else
+            echo "Unsupported Linux distribution."
+        fi
     fi
-
-    # Check if the OS is Pacman based
-    if [ -f /etc/arch-release ]; then
-        update_pacman
-        return
-    fi
-
-    echo "Unsupported Linux distribution."
-    return
 }
 
 # Function to update vscode extensions
@@ -113,8 +116,9 @@ update_vscode_ext() {
         echo -e "${RED}VSCode is not installed.${CLEAR}"
         return
     fi
-
-    code --update-extensions
+    
+    local CODE_DIR=$(dirname which code)
+    sudo -u $SUDO_USER code --update-extensions --no-sandbox --user-data-dir=$CODE_DIR
 }
 
 # Function to update gem packages
@@ -162,14 +166,15 @@ update_pip3() {
         return
     fi
 
-    pip3 list --outdated --format=columns | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 pip3 install -U
+    # Running with a non-root user
+    sudo -u $SUDO_USER pip3 list --outdated --format=columns | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 pip3 install -U
 }
 
 # Function to update all in one shot
 update_all() {
     local PING_IP=8.8.8.8
     if ping -q -W 1 -c 1 $PING_IP &>/dev/null; then
-        # update_os # Enable only if script is completed and tested.
+        update_os
         update_vscode_ext
         update_gem
         update_npm
