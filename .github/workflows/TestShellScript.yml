@@ -18,7 +18,7 @@ jobs:
       - name: Run Shell Script
         run: |
           chmod +x update_all.sh
-          sh update_all.sh &> output.log
+          sudo sh update_all.sh &> output.log
         continue-on-error: true
 
       - name: Display Output
