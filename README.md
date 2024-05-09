@@ -41,7 +41,7 @@ and now you can call the script any time :)
 
 Currently including:
 
-- 🖥️ Linux Package Update (`brew`)
+- 🖥️ Linux Package Update (`apt/dnf/yum`)
 - 🧑‍💻 VS Code Extensions (`code`)
 - 📦 Node Package Manager (`npm`)
 - 💎 RubyGems (`gem`)
