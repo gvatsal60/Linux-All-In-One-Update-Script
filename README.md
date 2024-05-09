@@ -1,4 +1,3 @@
-[![Test Shell Script](https://github.com/gvatsal60/Linux-All-In-One-Update-Script/actions/workflows/TestShellScript.yml/badge.svg)](https://github.com/gvatsal60/Linux-All-In-One-Update-Script/actions/workflows/TestShellScript.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://img.shields.io/github/license/gvatsal60//Linux-All-In-One-Update-Script)
 
 # Linux-All-In-One-Update-Script 🍎🖥️ 
@@ -14,7 +13,7 @@ This is a bash linux update script that updates all software that I could find t
 To execute just run:
 
 ```sh
-sh update_all.sh
+curl -sS https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-Script/master/update_all.sh | sudo bash
 ```
 
 To source and then use individual update-* functions first
