@@ -3,11 +3,11 @@
 # To execute run:
 #
 #    sh update_all.sh
-# 
+#
 # To source and then use individual update-* functions
 # first comment out the command at the bottom of the file
 # and run:
-# 
+#
 #    source ./update_all.sh
 #
 # If you want to use this command often copy it to directory
@@ -19,32 +19,34 @@
 #       chmod +x $USER_SCRIPTS/update_all
 #  and now you can call the script any time :)
 
+# Text Color Variables
+readonly RED='\033[31m'   # Red
+readonly GREEN='\033[32m' # Green
+readonly CLEAR='\033[0m'  # Clear color and formatting
+
 # Check if script is run with sudo
 if [ "$EUID" -ne 0 ]; then
     echo "Please run this script with sudo."
     exit 1
 fi
 
-# Text Color Variables
-readonly RED='\033[31m'      # Red
-readonly GREEN='\033[32m'    # Green
-readonly CLEAR='\033[0m'     # Clear color and formatting
+# OS Update Function
 
-# Function to update Ubuntu
-update_ubuntu() {
-    echo -e "${GREEN}Updating Ubuntu...${CLEAR}"
-    apt update -y && apt upgrade -y && apt autoremove -y
+# Function to update Debian based
+update_debian() {
+    echo -e "${GREEN}Updating Debian based...${CLEAR}"
+    apt-get update -y && apt-get upgrade -y && apt-get autoremove -y
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}Update completed.${CLEAR}"
     else
         echo -e "${RED}Update failed.${CLEAR}"
-        exit 1
+        return
     fi
 }
 
-# Function to update CentOS or Fedora
-update_centos() {
-    echo -e "${GREEN}Updating CentOS...${CLEAR}"
+# Function to update RPM based
+update_rpm() {
+    echo -e "${GREEN}Updating RPM based...${CLEAR}"
     if command -v dnf &>/dev/null; then
         dnf upgrade -y && dnf autoremove -y
     else
@@ -54,43 +56,114 @@ update_centos() {
         echo -e "${GREEN}Update completed.${CLEAR}"
     else
         echo -e "${RED}Update failed.${CLEAR}"
-        exit 1
+        return
     fi
 }
 
-# Function to update Debian
-update_debian() {
-    echo -e "${GREEN}Updating Debian...${CLEAR}"
-    apt-get update -y && apt-get upgrade -y && apt-get autoremove -y
+# Function to update Pacman based
+update_pacman() {
+    echo -e "${GREEN}Updating Pacman based...${CLEAR}"
+    # if command -v pacman &>/dev/null; then
+    #   pacman upgrade -y && pacman autoremove -y
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}Update completed.${CLEAR}"
     else
         echo -e "${RED}Update failed.${CLEAR}"
-        exit 1
+        return
     fi
 }
 
-# Check if the OS is Ubuntu
-if [ -f /etc/lsb-release ]; then
-    . /etc/lsb-release
-    if [ "$DISTRIB_ID" == "Ubuntu" ]; then
-        update_ubuntu
+# Function to update os based on their type
+update_os() {
+    # Check if the OS is Debian
+    if [ -f /etc/lsb-release ] || [ -f /etc/debian_version ]; then
+        update_debian
+    fi
+
+    # Check if the OS is RPM based
+    if [ -f /etc/redhat-release ] || [ -f /etc/centos-release ]; then
+        update_rpm
         exit 0
     fi
-fi
 
-# Check if the OS is CentOS or Fedora
-if [ -f /etc/redhat-release ] || [ -f /etc/centos-release ]; then
-    update_centos
-    exit 0
-fi
+    echo "Unsupported Linux distribution."
+    return
+}
 
-# Check if the OS is Debian
-if [ -f /etc/debian_version ]; then
-    update_debian
-    exit 0
-fi
+# Function to update vscode extensions
+update_vscode_ext() {
+    echo -e "\n${GREEN}Updating VSCode Extensions${CLEAR}"
 
-echo "Unsupported Linux distribution."
-exit 1
+    if ! command -v code &>/dev/null; then
+        echo -e "${RED}VSCode is not installed.${CLEAR}"
+        return
+    fi
 
+    code --update-extensions
+}
+
+# Function to update gem packages
+update_gem() {
+    echo -e "\n${GREEN}Updating Gems${CLEAR}"
+
+    if ! command -v gem &>/dev/null; then
+        echo -e "${RED}Gem is not installed.${CLEAR}"
+        return
+    fi
+
+    gem update --user-install && gem cleanup --user-install
+}
+
+# Function to update npm packages
+update_npm() {
+    echo -e "\n${GREEN}Updating Npm Packages${CLEAR}"
+
+    if ! command -v npm &>/dev/null; then
+        echo -e "${RED}Npm is not installed.${CLEAR}"
+        return
+    fi
+
+    npm update -g
+}
+
+# Function to update yarn packages
+update_yarn() {
+    echo -e "\n${GREEN}Updating Yarn Packages${CLEAR}"
+
+    if ! command -v yarn &>/dev/null; then
+        echo -e "${RED}Yarn is not installed.${CLEAR}"
+        return
+    fi
+
+    yarn upgrade --latest
+}
+
+# Function to update pip3 packages
+update_pip3() {
+    echo -e "\n${GREEN}Updating Python 3.x pips${CLEAR}"
+
+    if ! command -v python3 &>/dev/null || ! command -v pip3 &>/dev/null; then
+        echo -e "${RED}Python 3 or pip3 is not installed.${CLEAR}"
+        return
+    fi
+
+    pip3 list --outdated --format=columns | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 pip3 install -U
+}
+
+# Function to update all in one shot
+update_all() {
+    local PING_IP=8.8.8.8
+    if ping -q -W 1 -c 1 $PING_IP &>/dev/null; then
+        # update_os # Enable only if script is completed and tested.
+        update_vscode_ext
+        update_gem
+        update_npm
+        update_yarn
+        update_pip3
+    else
+        echo -e "${RED}Internet Disabled!!!${CLEAR}"
+    fi
+}
+
+# COMMENT OUT IF SOURCING
+update_all
