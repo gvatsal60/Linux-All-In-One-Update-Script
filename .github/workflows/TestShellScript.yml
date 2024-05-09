@@ -1,0 +1,26 @@
+name: Test Shell Script
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  run_shell_script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Shell Script
+        run: |
+          chmod +x update_all.sh
+          sh update_all.sh &> output.log
+        continue-on-error: true
+
+      - name: Display Output
+        if: ${{ always() }}
+        run: cat output.log
