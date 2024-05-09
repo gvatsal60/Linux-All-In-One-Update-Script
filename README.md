@@ -1,4 +1,7 @@
-# Linux-All-In-One-Update-Script 🍎🖥️ [![Test Shell Script](https://github.com/gvatsal60/Linux-All-In-One-Update-Script/actions/workflows/TestShellScript.yml/badge.svg)](https://github.com/gvatsal60/Linux-All-In-One-Update-Script/actions/workflows/TestShellScript.yml)
+[![Test Shell Script](https://github.com/gvatsal60/Linux-All-In-One-Update-Script/actions/workflows/TestShellScript.yml/badge.svg)](https://github.com/gvatsal60/Linux-All-In-One-Update-Script/actions/workflows/TestShellScript.yml)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)]([https://gvatsal60/licenses/Apache-2.0](https://img.shields.io/github/license/gvatsal60//Linux-All-In-One-Update-Script)
+
+# Linux-All-In-One-Update-Script 🍎🖥️ 
 Update Linux and all its packages with a single script
 
 > Inspired from the repo
