@@ -63,8 +63,17 @@ update_rpm() {
 # Function to update Pacman based
 update_pacman() {
     echo -e "${GREEN}Updating Pacman based...${CLEAR}"
-    # if command -v pacman &>/dev/null; then
-    #   pacman upgrade -y && pacman autoremove -y
+    
+    # Check if pacman is available
+    if ! command -v pacman &>/dev/null; then
+        echo -e "${RED}Pacman is not installed.${CLEAR}"
+        return 1
+    fi
+    
+    # Update pacman packages
+    pacman -Syu --noconfirm
+    
+    # Check if update was successful
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}Update completed.${CLEAR}"
     else
@@ -84,6 +93,12 @@ update_os() {
     if [ -f /etc/redhat-release ] || [ -f /etc/centos-release ]; then
         update_rpm
         exit 0
+    fi
+
+    # Check if the OS is Pacman based
+    if [ -f /etc/arch-release ]; then
+        update_pacman
+        return
     fi
 
     echo "Unsupported Linux distribution."
