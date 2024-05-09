@@ -1,4 +1,4 @@
-# Linux-All-In-One-Update-Script 🍎🖥️
+# Linux-All-In-One-Update-Script 🍎🖥️ [![Test Shell Script](https://github.com/gvatsal60/Linux-All-In-One-Update-Script/actions/workflows/TestShellScript.yml/badge.svg)](https://github.com/gvatsal60/Linux-All-In-One-Update-Script/actions/workflows/TestShellScript.yml)
 Update Linux and all its packages with a single script
 
 > Inspired from the repo
