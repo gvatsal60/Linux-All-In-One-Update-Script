@@ -9,18 +9,30 @@ on:
       - '*'
 
 jobs:
-  run_shell_script:
+  Test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Run Shell Script
-        run: |
-          chmod +x update_all.sh
-          sudo sh update_all.sh &> output.log
-        continue-on-error: true
+      - name: Setup Bats and Bats libraries
+        uses: bats-core/bats-action@2.0.0
+      
+      - name: Run Test
+        run: bats test_script.bats
+      
+  # Run:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
 
-      - name: Display Output
-        if: ${{ always() }}
-        run: cat output.log
+  #     - name: Run Shell Script
+  #       run: |
+  #         chmod +x update_all.sh
+  #         sudo sh update_all.sh &> output.log
+  #       continue-on-error: true
+
+  #     - name: Display Output
+  #       if: ${{ always() }}
+  #       run: cat output.log
