@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://img.shields.io/github/license/gvatsal60//Linux-All-In-One-Update-Script)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://img.shields.io/github/license/gvatsal60/Linux-All-In-One-Update-Script)
 
 # Linux-All-In-One-Update-Script 🍎🖥️ 
 Update Linux and all its packages with a single script
