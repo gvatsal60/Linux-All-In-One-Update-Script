@@ -1,4 +1,9 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://img.shields.io/github/license/gvatsal60/Linux-All-In-One-Update-Script)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-Yes-green.svg)](https://GitHub.com/gvatsal60/Linux-All-In-One-Update-Script/graphs/commit-activity)
+[![GitHub issues](https://img.shields.io/github/issues/gvatsal60/Linux-All-In-One-Update-Script.svg)](https://GitHub.com/gvatsal60/Linux-All-In-One-Update-Script/issues/)
+[![GitHub forks](https://img.shields.io/github/forks/gvatsal60/Linux-All-In-One-Update-Script.svg)](https://GitHub.com/gvatsal60/Linux-All-In-One-Update-Script/network/)
+[![GitHub stars](https://img.shields.io/github/stars/gvatsal60/Linux-All-In-One-Update-Script.svg)](https://GitHub.com/gvatsal60/Linux-All-In-One-Update-Script/stargazers)
+[![GitHub pull-requests](https://img.shields.io/github/issues-pr/gvatsal60/Linux-All-In-One-Update-Script.svg)](https://GitHub.com/gvatsal60/Linux-All-In-One-Update-Script/pull/)
 
 # Linux-All-In-One-Update-Script 🍎🖥️ 
 Update Linux and all its packages with a single script
