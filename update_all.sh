@@ -6,7 +6,6 @@ readonly GREEN='\033[32m' # Green
 readonly CLEAR='\033[0m'  # Clear color and formatting
 
 # Global Variables
-readonly SUDO_USER
 SUDO_USER=$(logname)
 
 # Function to check if script is run with sudo
@@ -99,7 +98,6 @@ update_vscode_ext() {
         return
     fi
 
-    readonly CODE_DIR
     CODE_DIR=$(dirname "$(command -v code)")
 
     sudo -u "$SUDO_USER" code --update-extensions --no-sandbox --user-data-dir="$CODE_DIR"
