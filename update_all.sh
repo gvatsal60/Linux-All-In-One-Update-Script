@@ -1,9 +1,27 @@
 #!/bin/sh
 
 # Text Color Variables
-RED=$(tput setaf 1)   # Red
-GREEN=$(tput setaf 2) # Green
-CLEAR=$(tput sgr0)    # Clear color and formatting
+# Check if the 'tput' command is available
+# - '/dev/null 2>&1' redirects standard output (stdout) and standard error (stderr) to /dev/null, suppressing output.
+# - If 'tput' is found, it likely indicates that color support is available.
+if command -v tput >/dev/null 2>&1; then
+    RED=$(tput setaf 1)   # Set text color to red
+    GREEN=$(tput setaf 2) # Set text color to green
+    CLEAR=$(tput sgr0)    # Reset text formatting
+
+# If 'tput' is not available, check if color support is available by other means:
+# - If file descriptor 1 (stdout) is associated with a terminal, then color support is assumed.
+# - This check is performed using the '-t' test, which verifies if the file descriptor is connected to a terminal.
+elif [ -t 1 ]; then
+    RED=$(printf '\033[31m')   # Set text color to red using ANSI escape code
+    GREEN=$(printf '\033[32m') # Set text color to green using ANSI escape code
+    CLEAR=$(printf '\033[0m')  # Reset text formatting using ANSI escape code
+else
+    # If neither 'tput' nor the '-t' test is available, default to empty strings for color variables.
+    RED=''
+    GREEN=''
+    CLEAR=''
+fi
 
 # OS Update Functions
 
@@ -89,7 +107,7 @@ update_gem() {
     printf "\n%sUpdating Gems%s" "${GREEN}" "${CLEAR}"
 
     if ! command -v gem >/dev/null 2>&1; then
-        printf "\n%s" "${RED}Gem is not installed.${CLEAR}"
+        printf "\n%sGem is not installed.%s" "${RED}" "${CLEAR}"
         return
     fi
 
@@ -101,7 +119,7 @@ update_npm() {
     printf "\n%sUpdating Npm Packages%s" "${GREEN}" "${CLEAR}"
 
     if ! command -v npm >/dev/null 2>&1; then
-        printf "\n%s" "${RED}Npm is not installed.${CLEAR}"
+        printf "\n%sNpm is not installed.%s" "${RED}" "${CLEAR}"
         return
     fi
 
@@ -113,7 +131,7 @@ update_yarn() {
     printf "\n%sUpdating Yarn Packages%s" "${GREEN}" "${CLEAR}"
 
     if ! command -v yarn >/dev/null 2>&1; then
-        printf "\n%s" "${RED}Yarn is not installed.${CLEAR}"
+        printf "\n%Yarn is not installed.%s" "${RED}" "${CLEAR}"
         return
     fi
 
