@@ -1,4 +1,4 @@
-# shellcheck shell=sh
+#!/bin/sh
 
 # Text Color Variables
 RED=$(tput setaf 1)   # Red
@@ -19,11 +19,11 @@ update_debian() {
 update_rpm() {
     printf "\n%sUpdating RPM based...\n%s" "${GREEN}" "${CLEAR}"
     if command -v dnf >/dev/null 2>&1; then
-        if ! sudo dnf upgrade -y && sudo dnf autoremove -y; then
+        if ! sudo dnf update -y && sudo dnf upgrade -y && sudo dnf autoremove -y; then
             printf "\n%sUpdate failed.\n%s" "${RED}" "${CLEAR}"
         fi
     elif command -v yum >/dev/null 2>&1; then
-        if ! sudo yum update -y && sudo yum autoremove -y; then
+        if ! sudo yum update -y && sudo yum upgrade -y && sudo yum autoremove -y; then
             printf "\n%sUpdate failed.\n%s" "${RED}" "${CLEAR}"
         fi
     else
@@ -36,6 +36,16 @@ update_pacman() {
     printf "\n%sUpdating Pacman based...\n%s" "${GREEN}" "${CLEAR}"
     if command -v pacman >/dev/null 2>&1; then
         if ! sudo pacman -Syu --noconfirm; then
+            printf "\n%sUpdate failed.\n%s" "${RED}" "${CLEAR}"
+        fi
+    fi
+}
+
+# Function to update APK based
+update_apk() {
+    printf "\n%sUpdating APK based...\n%s" "${GREEN}" "${CLEAR}"
+    if command -v apk >/dev/null 2>&1; then
+        if ! sudo apk update && sudo apk upgrade; then
             printf "\n%sUpdate failed.\n%s" "${RED}" "${CLEAR}"
         fi
     fi
@@ -54,6 +64,9 @@ update_os() {
     # Check if the OS is Pacman based
     elif [ -f /etc/arch-release ]; then
         update_pacman
+    # Check if the OS is Alpine based
+    elif [ -f /etc/alpine-release ]; then
+        update_apk
     else
         printf "\n%sUnsupported Linux distribution.%s\n" "${RED}" "${CLEAR}"
     fi
