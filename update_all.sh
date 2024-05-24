@@ -99,7 +99,7 @@ update_vscode_ext() {
         return
     fi
 
-    code --update-extensions --no-sandbox
+    code --update-extensions
 }
 
 # Function to update gem packages
@@ -131,7 +131,7 @@ update_yarn() {
     printf "\n%sUpdating Yarn Packages%s" "${GREEN}" "${CLEAR}"
 
     if ! command -v yarn >/dev/null 2>&1; then
-        printf "\n%Yarn is not installed.%s" "${RED}" "${CLEAR}"
+        printf "\n%sYarn is not installed.%s" "${RED}" "${CLEAR}"
         return
     fi
 
@@ -153,19 +153,34 @@ update_pip3() {
 
 # Function to update all in one shot
 update_all() {
+    update_os
+    update_vscode_ext
+    update_gem
+    update_npm
+    update_yarn
+    update_pip3
+}
+
+# Function to check if ping is supported for non-root users
+check_ping_support() {
     readonly PING_IP=8.8.8.8
     if ping -q -W 1 -c 1 $PING_IP >/dev/null 2>&1; then
-        update_os
-        update_vscode_ext
-        update_gem
-        update_npm
-        update_yarn
-        update_pip3
+        return 0
+    elif sudo ping -q -W 1 -c 1 $PING_IP >/dev/null 2>&1; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Main script
+main() {
+    if check_ping_support; then
+        update_all
         printf "\n"
     else
         printf "\n%sInternet Disabled!!!%s\n" "${RED}" "${CLEAR}"
     fi
 }
 
-# COMMENT OUT IF SOURCING
-update_all
+main
