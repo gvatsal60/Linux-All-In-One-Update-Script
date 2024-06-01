@@ -30,3 +30,11 @@ jobs:
             echo "ShellCheck Detected Errors!!!"
             exit 1
           fi
+
+      - name: Install shfmt
+        run: |
+          sudo apt install shfmt -y
+
+      - name: Format Shell Scripts
+        run: |
+          find . -name "*.sh" -exec shfmt -w -i 2 {} \;
