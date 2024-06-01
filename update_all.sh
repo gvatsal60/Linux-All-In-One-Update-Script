@@ -90,6 +90,24 @@ update_os() {
     fi
 }
 
+# Function to update brew
+update_brew() {
+    printf "\n%sUpdate Brew Formula's\n%s" "${GREEN}" "${CLEAR}"
+
+    if ! command -v brew >/dev/null 2>&1; then
+        printf "\n%brew is not installed.%s" "${RED}" "${CLEAR}"
+        return
+    fi
+
+    brew update && brew upgrade && brew cleanup -s
+
+    printf "\n%sUpdate Brew Casks\n%s" "${GREEN}" "${CLEAR}"
+    brew outdated --cask && brew upgrade --cask && brew cleanup -s
+
+    printf "\n%sBrew Diagnostics\n%s" "${GREEN}" "${CLEAR}"
+    brew doctor && brew missing
+}
+
 # Function to update vscode extensions
 update_vscode_ext() {
     printf "\n%sUpdating VSCode Extensions%s\n" "${GREEN}" "${CLEAR}"
@@ -154,6 +172,7 @@ update_pip3() {
 # Function to update all in one shot
 update_all() {
     update_os
+    update_brew
     update_vscode_ext
     update_gem
     update_npm
@@ -169,6 +188,7 @@ check_ping_support() {
     elif sudo ping -q -W 1 -c 1 $PING_IP >/dev/null 2>&1; then
         return 0
     else
+        printf "\n%sping is not installed.%s" "${RED}" "${CLEAR}"
         return 1
     fi
 }
