@@ -29,7 +29,7 @@ To start using this all-in-one update script, follow these simple steps:
 Run the following command in your terminal:
 
 ```sh
-    curl -sS https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-Script/master/update_all.sh | sh
+curl -fsSL https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-Script/master/update_all.sh | sh
 ```
 
 #### Manual Step
@@ -37,7 +37,7 @@ Run the following command in your terminal:
 1. **Download the Script**: Clone this repository or download the `update.sh` script directly to your Linux system.
 
    ```sh
-   curl -o "$HOME/update.sh" https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-Script/master/update_all.sh
+   curl -fsSL -o "$HOME/update.sh" https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-Script/master/update_all.sh
    ```
 
    or

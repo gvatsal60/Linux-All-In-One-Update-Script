@@ -8,7 +8,6 @@ if command -v tput >/dev/null 2>&1; then
     RED=$(tput setaf 1)   # Set text color to red
     GREEN=$(tput setaf 2) # Set text color to green
     CLEAR=$(tput sgr0)    # Reset text formatting
-
 # If 'tput' is not available, check if color support is available by other means:
 # - If file descriptor 1 (stdout) is associated with a terminal, then color support is assumed.
 # - This check is performed using the '-t' test, which verifies if the file descriptor is connected to a terminal.
@@ -27,51 +26,51 @@ fi
 
 # Function to update Debian based
 update_debian() {
-    printf "\n%sUpdating Debian based...\n%s" "${GREEN}" "${CLEAR}"
+    printf "\n%sUpdating Debian based...%s\n" "${GREEN}" "${CLEAR}"
     if ! sudo apt-get update -y && sudo apt-get upgrade -y && sudo apt-get autoremove -y; then
-        printf "\n%sUpdate failed.\n%s" "${RED}" "${CLEAR}"
+        printf "\n%sUpdate failed.%s\n" "${RED}" "${CLEAR}"
     fi
 }
 
 # Function to update RPM based
 update_rpm() {
-    printf "\n%sUpdating RPM based...\n%s" "${GREEN}" "${CLEAR}"
+    printf "\n%sUpdating RPM based...%s\n" "${GREEN}" "${CLEAR}"
     if command -v dnf >/dev/null 2>&1; then
         if ! sudo dnf update -y && sudo dnf upgrade -y && sudo dnf autoremove -y; then
-            printf "\n%sUpdate failed.\n%s" "${RED}" "${CLEAR}"
+            printf "\n%sUpdate failed.%s\n" "${RED}" "${CLEAR}"
         fi
     elif command -v yum >/dev/null 2>&1; then
         if ! sudo yum update -y && sudo yum upgrade -y && sudo yum autoremove -y; then
-            printf "\n%sUpdate failed.\n%s" "${RED}" "${CLEAR}"
+            printf "\n%sUpdate failed.%s\n" "${RED}" "${CLEAR}"
         fi
     else
-        printf "\n%sUpdate failed unknown package manager\n%s" "${RED}" "${CLEAR}"
+        printf "\n%sUpdate failed unknown package manager%s\n" "${RED}" "${CLEAR}"
     fi
 }
 
 # Function to update Pacman based
 update_pacman() {
-    printf "\n%sUpdating Pacman based...\n%s" "${GREEN}" "${CLEAR}"
+    printf "\n%sUpdating Pacman based...%s\n" "${GREEN}" "${CLEAR}"
     if command -v pacman >/dev/null 2>&1; then
         if ! sudo pacman -Syu --noconfirm; then
-            printf "\n%sUpdate failed.\n%s" "${RED}" "${CLEAR}"
+            printf "\n%sUpdate failed.%s\n" "${RED}" "${CLEAR}"
         fi
     fi
 }
 
 # Function to update APK based
 update_apk() {
-    printf "\n%sUpdating APK based...\n%s" "${GREEN}" "${CLEAR}"
+    printf "\n%sUpdating APK based...%s\n" "${GREEN}" "${CLEAR}"
     if command -v apk >/dev/null 2>&1; then
         if ! sudo apk update && sudo apk upgrade; then
-            printf "\n%sUpdate failed.\n%s" "${RED}" "${CLEAR}"
+            printf "\n%sUpdate failed.%s\n" "${RED}" "${CLEAR}"
         fi
     fi
 }
 
 # Function to update os based on their type
 update_os() {
-    printf "\n%sUpdate OS Packages\n%s" "${GREEN}" "${CLEAR}"
+    printf "\n%sUpdate OS Packages%s\n" "${GREEN}" "${CLEAR}"
 
     # Check if the OS is Debian
     if [ -f /etc/lsb-release ] || [ -f /etc/debian_version ]; then
@@ -92,19 +91,19 @@ update_os() {
 
 # Function to update brew
 update_brew() {
-    printf "\n%sUpdate Brew Formula's\n%s" "${GREEN}" "${CLEAR}"
+    printf "\n%sUpdate Brew Formula's%s\n" "${GREEN}" "${CLEAR}"
 
     if ! command -v brew >/dev/null 2>&1; then
-        printf "\n%brew is not installed.%s" "${RED}" "${CLEAR}"
+        printf "\n%brew is not installed.%s\n" "${RED}" "${CLEAR}"
         return
     fi
 
     brew update && brew upgrade && brew cleanup -s
 
-    printf "\n%sUpdate Brew Casks\n%s" "${GREEN}" "${CLEAR}"
+    printf "\n%sUpdate Brew Casks%s\n" "${GREEN}" "${CLEAR}"
     brew outdated --cask && brew upgrade --cask && brew cleanup -s
 
-    printf "\n%sBrew Diagnostics\n%s" "${GREEN}" "${CLEAR}"
+    printf "\n%sBrew Diagnostics%s\n" "${GREEN}" "${CLEAR}"
     brew doctor && brew missing
 }
 
@@ -113,7 +112,7 @@ update_vscode_ext() {
     printf "\n%sUpdating VSCode Extensions%s\n" "${GREEN}" "${CLEAR}"
 
     if ! command -v code >/dev/null 2>&1; then
-        printf "\n%sVSCode is not installed.%s" "${RED}" "${CLEAR}"
+        printf "\n%sVSCode is not installed.%s\n" "${RED}" "${CLEAR}"
         return
     fi
 
@@ -122,10 +121,10 @@ update_vscode_ext() {
 
 # Function to update gem packages
 update_gem() {
-    printf "\n%sUpdating Gems%s" "${GREEN}" "${CLEAR}"
+    printf "\n%sUpdating Gems%s\n" "${GREEN}" "${CLEAR}"
 
     if ! command -v gem >/dev/null 2>&1; then
-        printf "\n%sGem is not installed.%s" "${RED}" "${CLEAR}"
+        printf "\n%sGem is not installed.%s\n" "${RED}" "${CLEAR}"
         return
     fi
 
@@ -134,10 +133,10 @@ update_gem() {
 
 # Function to update npm packages
 update_npm() {
-    printf "\n%sUpdating Npm Packages%s" "${GREEN}" "${CLEAR}"
+    printf "\n%sUpdating Npm Packages%s\n" "${GREEN}" "${CLEAR}"
 
     if ! command -v npm >/dev/null 2>&1; then
-        printf "\n%sNpm is not installed.%s" "${RED}" "${CLEAR}"
+        printf "\n%sNpm is not installed.%s\n" "${RED}" "${CLEAR}"
         return
     fi
 
@@ -146,10 +145,10 @@ update_npm() {
 
 # Function to update yarn packages
 update_yarn() {
-    printf "\n%sUpdating Yarn Packages%s" "${GREEN}" "${CLEAR}"
+    printf "\n%sUpdating Yarn Packages%s\n" "${GREEN}" "${CLEAR}"
 
     if ! command -v yarn >/dev/null 2>&1; then
-        printf "\n%sYarn is not installed.%s" "${RED}" "${CLEAR}"
+        printf "\n%sYarn is not installed.%s\n" "${RED}" "${CLEAR}"
         return
     fi
 
@@ -158,10 +157,10 @@ update_yarn() {
 
 # Function to update pip3 packages
 update_pip3() {
-    printf "\n%sUpdating Python 3.x pips%s" "${GREEN}" "${CLEAR}"
+    printf "\n%sUpdating Python 3.x pips%s\n" "${GREEN}" "${CLEAR}"
 
     if ! command -v python3 >/dev/null 2>&1 || ! command -v pip3 >/dev/null 2>&1; then
-        printf "\n%sPython 3 or pip3 is not installed.%s" "${RED}" "${CLEAR}"
+        printf "\n%sPython 3 or pip3 is not installed.%s\n" "${RED}" "${CLEAR}"
         return
     fi
 
@@ -188,7 +187,7 @@ check_ping_support() {
     elif sudo ping -q -W 1 -c 1 $PING_IP >/dev/null 2>&1; then
         return 0
     else
-        printf "\n%sping is not installed.%s" "${RED}" "${CLEAR}"
+        printf "\n%sping is not installed.%s\n" "${RED}" "${CLEAR}"
         return 1
     fi
 }
