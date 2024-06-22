@@ -30,7 +30,7 @@ To start using this all-in-one update script, follow these simple steps:
 Run the following command in your terminal:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-Script/master/update_all.sh | sh
+curl -fsSL https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-Script/HEAD/update_all.sh | sh
 ```
 
 ### Manual Step
@@ -38,13 +38,13 @@ curl -fsSL https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-S
 1. **Download the Script**: Clone this repository or download the `update.sh` script directly to your Linux system.
 
    ```sh
-   curl -fsSL -o "$HOME/update.sh" https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-Script/master/update_all.sh
+   curl -fsSL -o "$HOME/update.sh" https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-Script/HEAD/update_all.sh
    ```
 
    or
 
    ```sh
-   wget -O "$HOME/update.sh" https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-Script/master/update_all.sh
+   wget -O "$HOME/update.sh" https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-Script/HEAD/update_all.sh
    ```
 
 2. **Make it Executable**: Ensure the script has executable permissions. If necessary, grant execution permissions using the following command:
