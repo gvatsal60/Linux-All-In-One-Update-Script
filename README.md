@@ -10,8 +10,7 @@
 
 This repository contains a versatile shell script designed to streamline the update process for various components of a Linux system. Whether you're a seasoned Linux user or just getting started, this script aims to simplify the often tedious task of updating your system by combining multiple update commands into one convenient script.
 
->
-Inspired from the repo
+> Inspired from the repo
 [MacOS-All-In-One-Update-Script](https://github.com/andmpel/MacOS-All-In-One-Update-Script/).
 
 ## Features
