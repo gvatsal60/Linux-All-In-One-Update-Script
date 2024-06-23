@@ -9,7 +9,6 @@
 [![GitHub stars](https://img.shields.io/github/stars/gvatsal60/Linux-All-In-One-Update-Script.svg)](https://GitHub.com/gvatsal60/Linux-All-In-One-Update-Script/stargazers)
 
 This repository contains a versatile shell script designed to streamline the update process for various components of a Linux system. Whether you're a seasoned Linux user or just getting started, this script aims to simplify the often tedious task of updating your system by combining multiple update commands into one convenient script.
-
 > Inspired from the repo
 [MacOS-All-In-One-Update-Script](https://github.com/andmpel/MacOS-All-In-One-Update-Script/).
 
@@ -17,8 +16,6 @@ This repository contains a versatile shell script designed to streamline the upd
 
 - **Comprehensive Updates**: Update all system packages, including installed applications, libraries, and system components, with a single command.
 - **Package Manager Agnostic**: Compatible with popular package managers like APT (Debian/Ubuntu), DNF (Fedora), Pacman (Arch), and more, ensuring flexibility across different Linux distributions.
-- **Safety Measures**: Prior to executing updates, the script prompts the user for confirmation, helping prevent accidental updates.
-- **Backup Functionality**: Optionally backs up important system files before performing updates, providing an extra layer of security.
 - **Customization**: Easily configurable options allow users to tailor the script to their preferences and specific system requirements.
 
 ## Usage
@@ -56,7 +53,7 @@ curl -fsSL https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-S
 3. **Execute the Script**: Run the script from the terminal using the following command:
 
    ```sh
-   ./$HOME/.update.sh
+   ./$HOME/update.sh
    ```
 
    Follow the prompts to proceed with the update process.
