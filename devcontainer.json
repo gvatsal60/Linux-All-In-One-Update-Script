@@ -1,0 +1,3 @@
+{
+    "postCreateCommand": "curl -fsSL https://raw.githubusercontent.com/gvatsal60/Linux-Aliases/HEAD/main.sh | sh"
+}
