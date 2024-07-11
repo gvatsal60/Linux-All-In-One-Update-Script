@@ -63,12 +63,12 @@ os_pkg_update() {
             ;;
         rhel)
             if [ "${PKG_MGR_CMD}" = "microdnf" ]; then
-                if [ "$(ls /var/cache/yum/* 2>/dev/null | wc -l)" -eq 0 ]; then
+                if [ "$(find /var/cache/yum/* -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null | wc -l)" -eq 0 ]; then
                     printf "\n%sRunning ${PKG_MGR_CMD} makecache...%s\n" "${GREEN}" "${CLEAR}"
                     ${PKG_MGR_CMD} makecache
                 fi
             else
-                if [ "$(ls /var/cache/${PKG_MGR_CMD}/* 2>/dev/null | wc -l)" -eq 0 ]; then
+                if [ "$(find "/var/cache/${PKG_MGR_CMD}"/* -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null | wc -l)" -eq 0 ]; then
                     printf "\n%sRunning ${PKG_MGR_CMD} check-update...%s\n" "${GREEN}" "${CLEAR}"
                     set +e
                     ${PKG_MGR_CMD} check-update
@@ -79,7 +79,7 @@ os_pkg_update() {
                     set -e
                 fi
             fi
-            
+
             printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
             if ! (${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} upgrade -y && ${PKG_MGR_CMD} autoremove -y); then
                 printf "\n%sUpdate failed.%s\n" "${RED}" "${CLEAR}"
@@ -96,10 +96,11 @@ os_pkg_update() {
         arch)
             if [ "$(find /var/cache/pacman/pkg/* 2>/dev/null | wc -l)" -eq 0 ]; then
                 printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
-                if ! (${PKG_MGR_CMD} -Syu --noconfirm && ${PKG_MGR_CMD} -Rns $(${PKG_MGR_CMD} -Qdtq)); then
+                if ! (${PKG_MGR_CMD} -Syu --noconfirm && ${PKG_MGR_CMD} -Rns "$(${PKG_MGR_CMD} -Qdtq)"); then
                     printf "\n%sUpdate failed.%s\n" "${RED}" "${CLEAR}"
                 fi
             fi
+            ;;
         *)
             printf "\n%sUnsupported or unrecognized Linux distribution: ${ADJUSTED_ID}%s\n" "${RED}" "${CLEAR}"
             exit 1
@@ -247,6 +248,7 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 # Bring in ID, ID_LIKE, VERSION_ID, VERSION_CODENAME
+# shellcheck source=/dev/null
 . /etc/os-release
 
 # Get an adjusted ID independent of distro variants
@@ -254,9 +256,9 @@ if [ "${ID}" = "debian" ] || [ "${ID_LIKE}" = "debian" ]; then
     ADJUSTED_ID="debian"
 elif [ "${ID}" = "alpine" ]; then
     ADJUSTED_ID="alpine"
-elif [ "${ID}" = "arch" || "${ID_LIKE}" = *"arch"* ]; then
+elif [ "${ID}" = "arch" ] || [ "${ID_LIKE}" = "arch" ] || (echo "${ID_LIKE}" | grep -q "arch"); then
     ADJUSTED_ID="arch"
-elif [[ "${ID}" = "rhel" || "${ID}" = "fedora" || "${ID}" = "mariner" || "${ID_LIKE}" = *"rhel"* || "${ID_LIKE}" = *"fedora"* || "${ID_LIKE}" = *"mariner"* ]]; then
+elif [ "${ID}" = "rhel" ] || [ "${ID}" = "fedora" ] || [ "${ID}" = "mariner" ] || (echo "${ID_LIKE}" | grep -q "rhel") || (echo "${ID_LIKE}" | grep -q "fedora") || (echo "${ID_LIKE}" | grep -q "mariner"); then
     ADJUSTED_ID="rhel"
 else
     printf "\n%sLinux distro ${ID} not supported.%s\n" "${RED}" "${CLEAR}"

@@ -24,14 +24,14 @@ UPDATE_RC="${UPDATE_RC:-"true"}"
 
 # Function to update shell configuration files
 updaterc() {
-    local _rc
+    _rc=""
     if [ "${UPDATE_RC}" = "true" ]; then
         case $ADJUSTED_ID in
             debian | rhel)
                 echo "Updating ~/.bashrc for ${ADJUSTED_ID}..."
                 _rc=~/.bashrc
                 ;;
-            alpine)
+            alpine | arch)
                 echo "Updating ~/.profile for ${ADJUSTED_ID}..."
                 _rc=~/.profile
                 ;;
@@ -54,6 +54,7 @@ updaterc() {
 ##########################################################################################
 
 # Bring in ID, ID_LIKE, VERSION_ID, VERSION_CODENAME
+# shellcheck source=/dev/null
 . /etc/os-release
 
 # Get an adjusted ID independent of distro variants
@@ -61,7 +62,9 @@ if [ "${ID}" = "debian" ] || [ "${ID_LIKE}" = "debian" ]; then
     ADJUSTED_ID="debian"
 elif [ "${ID}" = "alpine" ]; then
     ADJUSTED_ID="alpine"
-elif [[ "${ID}" = "rhel" || "${ID}" = "fedora" || "${ID}" = "mariner" || "${ID_LIKE}" = *"rhel"* || "${ID_LIKE}" = *"fedora"* || "${ID_LIKE}" = *"mariner"* ]]; then
+elif [ "${ID}" = "arch" ] || [ "${ID_LIKE}" = "arch" ] || (echo "${ID_LIKE}" | grep -q "arch"); then
+    ADJUSTED_ID="arch"
+elif [ "${ID}" = "rhel" ] || [ "${ID}" = "fedora" ] || [ "${ID}" = "mariner" ] || (echo "${ID_LIKE}" | grep -q "rhel") || (echo "${ID_LIKE}" | grep -q "fedora") || (echo "${ID_LIKE}" | grep -q "mariner"); then
     ADJUSTED_ID="rhel"
 else
     echo "Linux distro ${ID} not supported."
