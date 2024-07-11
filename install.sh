@@ -14,7 +14,7 @@
 # This script is licensed under the Apache 2.0 License.
 
 ##########################################################################################
-# Constants
+# Global Variables & Constants
 ##########################################################################################
 readonly FILE_NAME=".update.sh"
 readonly FILE_LINK="https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-Script/HEAD/${FILE_NAME}"
