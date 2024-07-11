@@ -14,8 +14,9 @@
 # This script is licensed under the Apache 2.0 License.
 
 ##########################################################################################
-# Constants
+# Global Variables & Constants
 ##########################################################################################
+ADJUSTED_ID=""
 
 ##########################################################################################
 # Functions
@@ -54,7 +55,7 @@ clean_up() {
 os_pkg_update() {
     case $ADJUSTED_ID in
         debian)
-            if [ "$(find /var/lib/apt/lists/* -maxdepth 1 -type f | wc -l)" -eq 0 ]; then
+            if [ "$(find /var/lib/apt/lists/* -maxdepth 1 -type f 2>/dev/null | wc -l)" -eq 0 ]; then
                 printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
                 if ! (${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} upgrade -y && ${PKG_MGR_CMD} autoremove -y); then
                     printf "\n%sUpdate failed.%s\n" "${RED}" "${CLEAR}"
@@ -281,7 +282,9 @@ else
 fi
 
 if check_ping_support; then
+    clean_up
     os_pkg_update
+    clean_up
     update_brew
     update_vscode_ext
     update_gem
