@@ -282,7 +282,6 @@ fi
 if check_ping_support; then
     clean_up
     os_pkg_update
-    clean_up
     update_brew
     update_vscode_ext
     update_gem
