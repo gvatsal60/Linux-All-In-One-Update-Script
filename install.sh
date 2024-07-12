@@ -24,7 +24,6 @@ UPDATE_RC="${UPDATE_RC:-"true"}"
 ##########################################################################################
 # Functions
 ##########################################################################################
-
 # Function: updaterc
 # Description: Update shell configuration files
 updaterc() {
@@ -32,11 +31,9 @@ updaterc() {
     if [ "${UPDATE_RC}" = "true" ]; then
         case $ADJUSTED_ID in
         debian | rhel)
-            echo "Updating ~/.bashrc for ${ADJUSTED_ID}..."
             _rc=~/.bashrc
             ;;
         alpine | arch)
-            echo "Updating ~/.profile for ${ADJUSTED_ID}..."
             _rc=~/.profile
             ;;
         *)
@@ -45,16 +42,17 @@ updaterc() {
             ;;
         esac
 
-        # Check if alias update='sudo sh ~/.update.sh' is already defined, if not then append it
+        # Check if alias update='sudo sh ${HOME}/.update.sh' is already defined, if not then append it
         if [ -f "${_rc}" ]; then
-            if ! grep -qxF "alias update='sudo sh ~/.update.sh'" "${_rc}"; then
-                printf "\n# Alias for Update\nalias update='sudo sh ~/.update.sh'\n" >> "${_rc}"
+            if ! grep -qxF "alias update='sudo sh ${HOME}/${FILE_NAME}'" "${_rc}"; then
+                echo "Updating ${_rc} for ${ADJUSTED_ID}..."
+                printf "\n# Alias for Update\nalias update='sudo sh %s/%s'\n" "${HOME}" "${FILE_NAME}" >> "${_rc}"
             fi
         else
             echo "Error: File ${_rc} does not exist."
             echo "Creating the ${_rc} file... although not sure if it will work."
             touch ${_rc}
-            printf "\n# Alias for Update\nalias update='sudo sh ~/.update.sh'\n" >> "${_rc}"
+            printf "\n# Alias for Update\nalias update='sudo sh %s/%s'\n" "${HOME}" "${FILE_NAME}" >> "${_rc}"
         fi
     fi
 }
