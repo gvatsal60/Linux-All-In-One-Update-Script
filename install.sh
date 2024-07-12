@@ -46,14 +46,21 @@ updaterc() {
         esac
 
         # Check if alias update='sudo sh ~/.update.sh' is already defined, if not then append it
-        if ! grep -qxF "alias update='sudo sh ~/.update.sh'" "${_rc}"; then
-            printf "\n# Alias for Update\nalias update='sudo sh ~/.update.sh'\n" >>"${_rc}"
+        if [ -f "${_rc}" ]; then
+            if ! grep -qxF "alias update='sudo sh ~/.update.sh'" "${_rc}"; then
+                printf "\n# Alias for Update\nalias update='sudo sh ~/.update.sh'\n" >> "${_rc}"
+            fi
+        else
+            echo "Error: File ${_rc} does not exist."
+            echo "Creating the ${_rc} file... although not sure if it will work."
+            touch ${_rc}
+            printf "\n# Alias for Update\nalias update='sudo sh ~/.update.sh'\n" >> "${_rc}"
         fi
     fi
 }
 
 # Function: dw_file
-# Description: Download alias file using wget or curl if available
+# Description: Download file using wget or curl if available
 dw_file() {
     # Check if wget is available
     if command -v wget >/dev/null 2>&1; then
@@ -62,7 +69,7 @@ dw_file() {
     elif command -v curl >/dev/null 2>&1; then
         curl -fsSL -o "${HOME}/${FILE_NAME}" ${FILE_LINK}
     else
-        printf "Either install wget or curl"
+        echo "Error: Either install wget or curl"
         exit 1
     fi
 }
@@ -85,22 +92,22 @@ elif [ "${ID}" = "arch" ] || [ "${ID_LIKE}" = "arch" ] || (echo "${ID_LIKE}" | g
 elif [ "${ID}" = "rhel" ] || [ "${ID}" = "fedora" ] || [ "${ID}" = "mariner" ] || (echo "${ID_LIKE}" | grep -q "rhel") || (echo "${ID_LIKE}" | grep -q "fedora") || (echo "${ID_LIKE}" | grep -q "mariner"); then
     ADJUSTED_ID="rhel"
 else
-    echo "Linux distro ${ID} not supported."
+    echo "Error: Linux distro ${ID} not supported."
     exit 1
 fi
 
 if [ -f "${HOME}/${FILE_NAME}" ]; then
-    printf "File already exists: %s\n" "$HOME/${FILE_NAME}"
-    printf "Do you want to replace it? [y/n]: "
+    echo "File already exists: $HOME/${FILE_NAME}"
+    echo "Do you want to replace it (default: y)? [y/n]: "
     read -r rp_conf
     rp_conf="${rp_conf:-y}"
     if [ "$rp_conf" = "y" ]; then
         # Replace the existing file
-        printf "\nReplacing %s...\n" "$HOME/${FILE_NAME}"
+        echo "Replacing $HOME/${FILE_NAME}..."
         dw_file
         updaterc
     else
-        printf "\nKeeping existing file: %s\n" "$HOME/${FILE_NAME}"
+        echo "Keeping existing file: $HOME/${FILE_NAME}"
     fi
 else
     dw_file

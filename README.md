@@ -16,7 +16,7 @@ This repository contains a versatile shell script designed to streamline the upd
 ## Features
 
 - **Comprehensive Updates**: Update all system packages, including installed applications, libraries, and system components, with a single command.
-- **Package Manager Agnostic**: Compatible with popular package managers like APT (Debian/Ubuntu), DNF (Fedora), Pacman (Arch), and more, ensuring flexibility across different Linux distributions.
+- **Package Manager Agnostic**: Compatible with popular package managers like APT (Debian/Ubuntu), DNF (Fedora/RHEL), Apk (Alpine), Pacman (Arch), and more, ensuring flexibility across different Linux distributions.
 - **Customization**: Easily configurable options allow users to tailor the script to their preferences and specific system requirements.
 
 ## Usage
