@@ -43,7 +43,7 @@ clean_up() {
             rm -rf /var/cache/pacman/pkg/*
             ;;
         *)
-            printf "\n%sClean up not implemented for Linux distro: ${ADJUSTED_ID}%s\n" "${RED}" "${CLEAR}"
+            printf "\n%sError: Clean up not implemented for Linux distro: ${ADJUSTED_ID}%s\n" "${RED}" "${CLEAR}"
             ;;
     esac
 }
@@ -58,7 +58,7 @@ os_pkg_update() {
             if [ "$(find /var/lib/apt/lists/* -maxdepth 1 -type f 2>/dev/null | wc -l)" -eq 0 ]; then
                 printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
                 if ! (${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} upgrade -y && ${PKG_MGR_CMD} autoremove -y); then
-                    printf "\n%sUpdate failed.%s\n" "${RED}" "${CLEAR}"
+                    printf "\n%sError: Update failed.%s\n" "${RED}" "${CLEAR}"
                 fi
             fi
             ;;
@@ -83,14 +83,14 @@ os_pkg_update() {
 
             printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
             if ! (${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} upgrade -y && ${PKG_MGR_CMD} autoremove -y); then
-                printf "\n%sUpdate failed.%s\n" "${RED}" "${CLEAR}"
+                printf "\n%sError: Update failed.%s\n" "${RED}" "${CLEAR}"
             fi
             ;;
         alpine)
             if [ "$(find /var/cache/apk/* 2>/dev/null | wc -l)" -eq 0 ]; then
                 printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
                 if ! (${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} upgrade -y && ${PKG_MGR_CMD} autoremove -y); then
-                    printf "\n%sUpdate failed.%s\n" "${RED}" "${CLEAR}"
+                    printf "\n%sError: Update failed.%s\n" "${RED}" "${CLEAR}"
                 fi
             fi
             ;;
@@ -98,12 +98,12 @@ os_pkg_update() {
             if [ "$(find /var/cache/pacman/pkg/* 2>/dev/null | wc -l)" -eq 0 ]; then
                 printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
                 if ! (${PKG_MGR_CMD} -Syu --noconfirm && ${PKG_MGR_CMD} -Rns "$(${PKG_MGR_CMD} -Qdtq)"); then
-                    printf "\n%sUpdate failed.%s\n" "${RED}" "${CLEAR}"
+                    printf "\n%sError: Update failed.%s\n" "${RED}" "${CLEAR}"
                 fi
             fi
             ;;
         *)
-            printf "\n%sUnsupported or unrecognized Linux distribution: ${ADJUSTED_ID}%s\n" "${RED}" "${CLEAR}"
+            printf "\n%sError: Unsupported or unrecognized Linux distribution: ${ADJUSTED_ID}%s\n" "${RED}" "${CLEAR}"
             exit 1
             ;;
     esac
@@ -194,7 +194,6 @@ update_pip3() {
     python3 -m pip list --outdated --format=columns | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 python3 -m pip install -U # FIXME
 }
 
-
 # Function: check_ping_support
 # Description: Checks if the system can ping an external IP address (8.8.8.8) to verify network connectivity.
 #              Attempts to ping without sudo first, then retries with sudo if necessary.
@@ -244,7 +243,7 @@ fi
 
 # Check if the script is running as root
 if [ "$(id -u)" -ne 0 ]; then
-    printf "\n%sScript must be run as root. Use sudo, su, or add "USER root" to your Dockerfile before running this script..%s\n" "${RED}" "${CLEAR}"
+    printf "\n%sError: Script must be run as root. Use sudo, su, or add "USER root" to your Dockerfile before running this script..%s\n" "${RED}" "${CLEAR}"
     exit 1
 fi
 
@@ -262,7 +261,7 @@ elif [ "${ID}" = "arch" ] || [ "${ID_LIKE}" = "arch" ] || (echo "${ID_LIKE}" | g
 elif [ "${ID}" = "rhel" ] || [ "${ID}" = "fedora" ] || [ "${ID}" = "mariner" ] || (echo "${ID_LIKE}" | grep -q "rhel") || (echo "${ID_LIKE}" | grep -q "fedora") || (echo "${ID_LIKE}" | grep -q "mariner"); then
     ADJUSTED_ID="rhel"
 else
-    printf "\n%sLinux distro ${ID} not supported.%s\n" "${RED}" "${CLEAR}"
+    printf "\n%sError: Linux distro ${ID} not supported.%s\n" "${RED}" "${CLEAR}"
     exit 1
 fi
 
