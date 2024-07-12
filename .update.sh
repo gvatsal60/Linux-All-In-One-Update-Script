@@ -21,7 +21,6 @@ ADJUSTED_ID=""
 ##########################################################################################
 # Functions
 ##########################################################################################
-
 # Function: clean_up
 # Description: Performs system cleanup tasks based on the detected Linux distribution.
 #              Executes commands to clean package cache and remove unnecessary packages.
