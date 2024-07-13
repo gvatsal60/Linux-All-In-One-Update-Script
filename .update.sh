@@ -88,7 +88,7 @@ os_pkg_update() {
         alpine)
             if [ "$(find /var/cache/apk/* 2>/dev/null | wc -l)" -eq 0 ]; then
                 printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
-                if ! (${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} upgrade -y && ${PKG_MGR_CMD} autoremove -y); then
+                if ! (${PKG_MGR_CMD} update && ${PKG_MGR_CMD} upgrade); then
                     printf "\n%sError: Update failed.%s\n" "${RED}" "${CLEAR}"
                 fi
             fi
