@@ -17,6 +17,7 @@
 # Global Variables & Constants
 ##########################################################################################
 readonly FILE_NAME=".update.sh"
+readonly FILE_PATH="${HOME}/${FILE_NAME}"
 readonly FILE_LINK="https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-Script/HEAD/${FILE_NAME}"
 
 UPDATE_RC="${UPDATE_RC:-"true"}"
@@ -31,10 +32,10 @@ updaterc() {
     if [ "${UPDATE_RC}" = "true" ]; then
         case $ADJUSTED_ID in
         debian | rhel)
-            _rc=~/.bashrc
+            _rc="${HOME}/.bashrc"
             ;;
         alpine | arch)
-            _rc=~/.profile
+            _rc="${HOME}/.profile"
             ;;
         *)
             echo "Error: Unsupported or unrecognized Linux distribution ${ADJUSTED_ID}"
@@ -44,15 +45,18 @@ updaterc() {
 
         # Check if alias update='sudo sh ${HOME}/.update.sh' is already defined, if not then append it
         if [ -f "${_rc}" ]; then
-            if ! grep -qxF "alias update='sudo sh ${HOME}/${FILE_NAME}'" "${_rc}"; then
+            if ! grep -qxF "alias update='sudo sh ${FILE_PATH}'" "${_rc}"; then
                 echo "Updating ${_rc} for ${ADJUSTED_ID}..."
-                printf "\n# Alias for Update\nalias update='sudo sh %s/%s'\n" "${HOME}" "${FILE_NAME}" >> "${_rc}"
+                printf "\n# Alias for Update\nalias update='sudo sh %s'\n" "${FILE_PATH}" >> "${_rc}"
             fi
         else
+            # Notify if the rc file does not exist
             echo "Error: File ${_rc} does not exist."
             echo "Creating the ${_rc} file... although not sure if it will work."
-            touch ${_rc}
-            printf "\n# Alias for Update\nalias update='sudo sh %s/%s'\n" "${HOME}" "${FILE_NAME}" >> "${_rc}"
+            # Create the rc file
+            touch "${_rc}"
+            # Append the sourcing block to the newly created rc file
+            printf "\n# Alias for Update\nalias update='sudo sh %s'\n" "${FILE_PATH}" >> "${_rc}"
         fi
     fi
 }
@@ -76,36 +80,46 @@ dw_file() {
 # Main Script
 ##########################################################################################
 
-# Bring in ID, ID_LIKE, VERSION_ID, VERSION_CODENAME
-# shellcheck source=/dev/null
-. /etc/os-release
+OS=$(uname)
 
-# Get an adjusted ID independent of distro variants
-if [ "${ID}" = "debian" ] || [ "${ID_LIKE}" = "debian" ]; then
-    ADJUSTED_ID="debian"
-elif [ "${ID}" = "alpine" ]; then
-    ADJUSTED_ID="alpine"
-elif [ "${ID}" = "arch" ] || [ "${ID_LIKE}" = "arch" ] || (echo "${ID_LIKE}" | grep -q "arch"); then
-    ADJUSTED_ID="arch"
-elif [ "${ID}" = "rhel" ] || [ "${ID}" = "fedora" ] || [ "${ID}" = "mariner" ] || (echo "${ID_LIKE}" | grep -q "rhel") || (echo "${ID_LIKE}" | grep -q "fedora") || (echo "${ID_LIKE}" | grep -q "mariner"); then
-    ADJUSTED_ID="rhel"
-else
-    echo "Error: Linux distro ${ID} not supported."
+case ${OS} in
+Linux)
+    # Bring in ID, ID_LIKE, VERSION_ID, VERSION_CODENAME
+    # shellcheck source=/dev/null
+    . /etc/os-release
+
+    # Get an adjusted ID independent of distro variants
+    if [ "${ID}" = "debian" ] || [ "${ID_LIKE}" = "debian" ]; then
+        ADJUSTED_ID="debian"
+    elif [ "${ID}" = "alpine" ]; then
+        ADJUSTED_ID="alpine"
+    elif [ "${ID}" = "arch" ] || [ "${ID_LIKE}" = "arch" ] || (echo "${ID_LIKE}" | grep -q "arch"); then
+        ADJUSTED_ID="arch"
+    elif [ "${ID}" = "rhel" ] || [ "${ID}" = "fedora" ] || [ "${ID}" = "mariner" ] || (echo "${ID_LIKE}" | grep -q "rhel") || (echo "${ID_LIKE}" | grep -q "fedora") || (echo "${ID_LIKE}" | grep -q "mariner"); then
+        ADJUSTED_ID="rhel"
+    else
+        echo "Error: Linux distro ${ID} not supported."
+        exit 1
+    fi
+    ;;
+*)
+    echo "Error: Unsupported or unrecognized os distribution ${ADJUSTED_ID}"
     exit 1
-fi
+    ;;
+esac
 
 if [ -f "${HOME}/${FILE_NAME}" ]; then
-    echo "File already exists: $HOME/${FILE_NAME}"
+    echo "File already exists: ${HOME}/${FILE_NAME}"
     echo "Do you want to replace it (default: y)? [y/n]: "
     read -r rp_conf
     rp_conf="${rp_conf:-y}"
-    if [ "$rp_conf" = "y" ]; then
+    if [ "${rp_conf}" = "y" ]; then
         # Replace the existing file
-        echo "Replacing $HOME/${FILE_NAME}..."
+        echo "Replacing ${HOME}/${FILE_NAME}..."
         dw_file
         updaterc
     else
-        echo "Keeping existing file: $HOME/${FILE_NAME}"
+        echo "Keeping existing file: ${HOME}/${FILE_NAME}"
     fi
 else
     dw_file
