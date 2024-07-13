@@ -60,12 +60,12 @@ updaterc() {
 # Function: dw_file
 # Description: Download file using wget or curl if available
 dw_file() {
-    # Check if wget is available
-    if command -v wget >/dev/null 2>&1; then
-        wget -O "${HOME}/${FILE_NAME}" ${FILE_LINK}
     # Check if curl is available
-    elif command -v curl >/dev/null 2>&1; then
+    if command -v curl >/dev/null 2>&1; then
         curl -fsSL -o "${HOME}/${FILE_NAME}" ${FILE_LINK}
+    # Check if wget is available
+    elif command -v wget >/dev/null 2>&1; then
+        wget -O "${HOME}/${FILE_NAME}" ${FILE_LINK}
     else
         echo "Error: Either install wget or curl"
         exit 1
