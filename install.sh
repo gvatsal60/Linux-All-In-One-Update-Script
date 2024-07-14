@@ -61,7 +61,7 @@ updaterc() {
 
         if [ -f "${_rc}" ]; then
             # shellcheck source=/dev/null
-            . ${_rc}
+            . "${_rc}"
         fi
     fi
 }
