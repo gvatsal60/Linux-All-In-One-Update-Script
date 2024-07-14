@@ -58,6 +58,11 @@ updaterc() {
             # Append the sourcing block to the newly created rc file
             printf "\n# Alias for Update\nalias update='sudo sh %s'\n" "${FILE_PATH}" >> "${_rc}"
         fi
+
+        if [ -f "${_rc}" ]; then
+            # shellcheck source=/dev/null
+            . "${_rc}"
+        fi
     fi
 }
 
