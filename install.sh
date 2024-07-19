@@ -94,14 +94,14 @@ Linux)
     . /etc/os-release
 
     # Get an adjusted ID independent of distro variants
-    if [ "${ID}" = "debian" ] || [ "${ID_LIKE}" = "debian" ]; then
+    if [ "${ID}" = "debian" ] || [ "${ID_LIKE#*debian}" != "${ID_LIKE}" ]; then
         ADJUSTED_ID="debian"
+    elif [ "${ID}" = "arch" ] || [ "${ID_LIKE#*arch}" != "${ID_LIKE}" ]; then
+        ADJUSTED_ID="arch"
+    elif [ "${ID}" = "rhel" ] || [ "${ID}" = "fedora" ] || [ "${ID}" = "mariner" ] || [ "${ID_LIKE#*rhel}" != "${ID_LIKE}" ] || [ "${ID_LIKE#*fedora}" != "${ID_LIKE}" ] || [ "${ID_LIKE#*mariner}" != "${ID_LIKE}" ]; then
+        ADJUSTED_ID="rhel"
     elif [ "${ID}" = "alpine" ]; then
         ADJUSTED_ID="alpine"
-    elif [ "${ID}" = "arch" ] || [ "${ID_LIKE}" = "arch" ] || (echo "${ID_LIKE}" | grep -q "arch"); then
-        ADJUSTED_ID="arch"
-    elif [ "${ID}" = "rhel" ] || [ "${ID}" = "fedora" ] || [ "${ID}" = "mariner" ] || (echo "${ID_LIKE}" | grep -q "rhel") || (echo "${ID_LIKE}" | grep -q "fedora") || (echo "${ID_LIKE}" | grep -q "mariner"); then
-        ADJUSTED_ID="rhel"
     else
         echo "Error: Linux distro ${ID} not supported."
         exit 1
