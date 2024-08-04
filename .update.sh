@@ -52,7 +52,7 @@ clean_up() {
 #              Supports Debian-based (apt-get), RPM-based (dnf/yum/microdnf), and Alpine (apk) package managers.
 #              Prints messages indicating the update process and handles errors gracefully.
 os_pkg_update() {
-    case $ADJUSTED_ID in
+    case ${ADJUSTED_ID} in
         debian)
             if [ "$(find /var/lib/apt/lists/* -maxdepth 1 -type f 2>/dev/null | wc -l)" -eq 0 ]; then
                 printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
@@ -201,8 +201,24 @@ update_pip3() {
 #   0 - Success, ping is supported.
 check_ping_support() {
     if ! command -v ping >/dev/null 2>&1; then
-        printf "\n%sError: ping is not installed.%s\n" "${RED}" "${CLEAR}"
-        exit 1
+        case ${ADJUSTED_ID} in
+            debian)
+                ${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} install iputils-ping -y
+                ;;
+            rhel)
+                ${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} install iputils -y
+                ;;
+            alpine)
+                ${PKG_MGR_CMD} add iputils --no-cache
+                ;;
+            arch)
+                ${PKG_MGR_CMD} -Sy --noconfirm iputils
+                ;;
+            *)
+                printf "\n%sError: Unable to install ping for distro ${ID}%s\n" "${RED}" "${CLEAR}"
+                printf "\n%sSkipping ping installation... %s\n" "${RED}" "${CLEAR}"
+                ;;
+        esac
     fi
 
     readonly _PING_IP=8.8.8.8
