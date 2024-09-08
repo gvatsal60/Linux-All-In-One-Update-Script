@@ -1,26 +1,36 @@
 #!/bin/sh
 
-##########################################################################################
+###################################################################################################
 # File: .update.sh
-# Author: Vatsal Gupta
+# Author: [Vatsal Gupta (gvatsal60)]
 # Date: 11-Jul-2024
 # Description: This script provides functions to update Linux distributions using their
 #              respective package managers.
-##########################################################################################
+###################################################################################################
 
-##########################################################################################
+###################################################################################################
 # License
-##########################################################################################
+###################################################################################################
 # This script is licensed under the Apache 2.0 License.
 
-##########################################################################################
+###################################################################################################
 # Global Variables & Constants
-##########################################################################################
-ADJUSTED_ID=""
+###################################################################################################
+# Ensure apt is in non-interactive to avoid prompts
+export DEBIAN_FRONTEND=noninteractive
 
-##########################################################################################
+ADJUSTED_ID="None"
+
+###################################################################################################
 # Functions
-##########################################################################################
+###################################################################################################
+
+# Function: println
+# Description: Prints each argument on a new line, suppressing any error messages.
+println() {
+    command printf %s\\n "$*" 2>/dev/null
+}
+
 # Function: clean_up
 # Description: Performs system cleanup tasks based on the detected Linux distribution.
 #              Executes commands to clean package cache and remove unnecessary packages.
@@ -28,22 +38,22 @@ ADJUSTED_ID=""
 # Usage: Call this function to automate system cleanup tasks after updating the system.
 clean_up() {
     case ${ADJUSTED_ID} in
-        debian)
-            rm -rf /var/lib/apt/lists/*
-            ;;
-        rhel)
-            rm -rf /var/cache/dnf/* /var/cache/yum/*
-            rm -rf /tmp/yum.log
-            ;;
-        alpine)
-            rm -rf /var/cache/apk/*
-            ;;
-        arch)
-            rm -rf /var/cache/pacman/pkg/*
-            ;;
-        *)
-            printf "\n%sError: Clean up not implemented for Linux distro: ${ADJUSTED_ID}%s\n" "${RED}" "${CLEAR}"
-            ;;
+    debian)
+        rm -rf /var/lib/apt/lists/*
+        ;;
+    rhel)
+        rm -rf /var/cache/dnf/* /var/cache/yum/*
+        rm -rf /tmp/yum.log
+        ;;
+    alpine)
+        rm -rf /var/cache/apk/*
+        ;;
+    arch)
+        rm -rf /var/cache/pacman/pkg/*
+        ;;
+    *)
+        printf "\n%sError: Clean up not implemented for Linux distro: ${ADJUSTED_ID}%s\n" "${RED}" "${CLEAR}"
+        ;;
     esac
 }
 
@@ -53,58 +63,58 @@ clean_up() {
 #              Prints messages indicating the update process and handles errors gracefully.
 os_pkg_update() {
     case ${ADJUSTED_ID} in
-        debian)
-            if [ "$(find /var/lib/apt/lists/* -maxdepth 1 -type f 2>/dev/null | wc -l)" -eq 0 ]; then
-                printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
-                if ! (${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} upgrade -y && ${PKG_MGR_CMD} autoremove -y && ${PKG_MGR_CMD} dist-upgrade -y); then
-                    printf "\n%sError: Update failed.%s\n" "${RED}" "${CLEAR}"
-                fi
-            fi
-            ;;
-        rhel)
-            if [ "${PKG_MGR_CMD}" = "microdnf" ]; then
-                if [ "$(find /var/cache/yum/* -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null | wc -l)" -eq 0 ]; then
-                    printf "\n%sRunning ${PKG_MGR_CMD} makecache...%s\n" "${GREEN}" "${CLEAR}"
-                    ${PKG_MGR_CMD} makecache
-                fi
-            else
-                if [ "$(find "/var/cache/${PKG_MGR_CMD}"/* -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null | wc -l)" -eq 0 ]; then
-                    printf "\n%sRunning ${PKG_MGR_CMD} check-update...%s\n" "${GREEN}" "${CLEAR}"
-                    set +e
-                    ${PKG_MGR_CMD} check-update
-                    rc=$?
-                    if [ $rc -ne 0 ] && [ $rc -ne 100 ]; then
-                        exit 1
-                    fi
-                    set -e
-                fi
-            fi
-
+    debian)
+        if [ "$(find /var/lib/apt/lists/* -maxdepth 1 -type f 2>/dev/null | wc -l)" -eq 0 ]; then
             printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
-            if ! (${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} upgrade -y && ${PKG_MGR_CMD} autoremove -y); then
+            if ! (${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} upgrade -y && ${PKG_MGR_CMD} autoremove -y && ${PKG_MGR_CMD} dist-upgrade -y); then
                 printf "\n%sError: Update failed.%s\n" "${RED}" "${CLEAR}"
             fi
-            ;;
-        alpine)
-            if [ "$(find /var/cache/apk/* 2>/dev/null | wc -l)" -eq 0 ]; then
-                printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
-                if ! (${PKG_MGR_CMD} update && ${PKG_MGR_CMD} upgrade); then
-                    printf "\n%sError: Update failed.%s\n" "${RED}" "${CLEAR}"
-                fi
+        fi
+        ;;
+    rhel)
+        if [ "${PKG_MGR_CMD}" = "microdnf" ]; then
+            if [ "$(find /var/cache/yum/* -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null | wc -l)" -eq 0 ]; then
+                printf "\n%sRunning ${PKG_MGR_CMD} makecache...%s\n" "${GREEN}" "${CLEAR}"
+                ${PKG_MGR_CMD} makecache
             fi
-            ;;
-        arch)
-            if [ "$(find /var/cache/pacman/pkg/* 2>/dev/null | wc -l)" -eq 0 ]; then
-                printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
-                if ! (${PKG_MGR_CMD} -Syu --noconfirm && ${PKG_MGR_CMD} -Rns "$(${PKG_MGR_CMD} -Qdtq)"); then
-                    printf "\n%sError: Update failed.%s\n" "${RED}" "${CLEAR}"
+        else
+            if [ "$(find "/var/cache/${PKG_MGR_CMD}"/* -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null | wc -l)" -eq 0 ]; then
+                printf "\n%sRunning ${PKG_MGR_CMD} check-update...%s\n" "${GREEN}" "${CLEAR}"
+                set +e
+                ${PKG_MGR_CMD} check-update
+                rc=$?
+                if [ $rc -ne 0 ] && [ $rc -ne 100 ]; then
+                    exit 1
                 fi
+                set -e
             fi
-            ;;
-        *)
-            printf "\n%sError: Unsupported or unrecognized Linux distribution: ${ADJUSTED_ID}%s\n" "${RED}" "${CLEAR}"
-            exit 1
-            ;;
+        fi
+
+        printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
+        if ! (${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} upgrade -y && ${PKG_MGR_CMD} autoremove -y); then
+            printf "\n%sError: Update failed.%s\n" "${RED}" "${CLEAR}"
+        fi
+        ;;
+    alpine)
+        if [ "$(find /var/cache/apk/* 2>/dev/null | wc -l)" -eq 0 ]; then
+            printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
+            if ! (${PKG_MGR_CMD} update && ${PKG_MGR_CMD} upgrade); then
+                printf "\n%sError: Update failed.%s\n" "${RED}" "${CLEAR}"
+            fi
+        fi
+        ;;
+    arch)
+        if [ "$(find /var/cache/pacman/pkg/* 2>/dev/null | wc -l)" -eq 0 ]; then
+            printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
+            if ! (${PKG_MGR_CMD} -Syu --noconfirm && ${PKG_MGR_CMD} -Rns "$(${PKG_MGR_CMD} -Qdtq)"); then
+                printf "\n%sError: Update failed.%s\n" "${RED}" "${CLEAR}"
+            fi
+        fi
+        ;;
+    *)
+        printf "\n%sError: Unsupported or unrecognized Linux distribution: ${ADJUSTED_ID}%s\n" "${RED}" "${CLEAR}"
+        exit 1
+        ;;
     esac
 }
 
@@ -202,22 +212,22 @@ update_pip3() {
 check_ping_support() {
     if ! command -v ping >/dev/null 2>&1; then
         case ${ADJUSTED_ID} in
-            debian)
-                ${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} install iputils-ping -y
-                ;;
-            rhel)
-                ${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} install iputils -y
-                ;;
-            alpine)
-                ${PKG_MGR_CMD} add iputils --no-cache
-                ;;
-            arch)
-                ${PKG_MGR_CMD} -Sy --noconfirm iputils
-                ;;
-            *)
-                printf "\n%sError: Unable to install ping for distro ${ID}%s\n" "${RED}" "${CLEAR}"
-                printf "\n%sSkipping ping installation... %s\n" "${RED}" "${CLEAR}"
-                ;;
+        debian)
+            ${PKG_MGR_CMD} update && ${INSTALL_CMD} iputils-ping
+            ;;
+        rhel)
+            ${PKG_MGR_CMD} update && ${INSTALL_CMD} iputils
+            ;;
+        alpine)
+            ${PKG_MGR_CMD} update && ${INSTALL_CMD} iputils
+            ;;
+        arch)
+            ${INSTALL_CMD} iputils
+            ;;
+        *)
+            printf "\n%sError: Unable to install ping for distro ${ID}%s\n" "${RED}" "${CLEAR}"
+            printf "\n%sSkipping ping installation... %s\n" "${RED}" "${CLEAR}"
+            ;;
         esac
     fi
 
@@ -230,9 +240,9 @@ check_ping_support() {
     fi
 }
 
-##########################################################################################
+###################################################################################################
 # Main Script
-##########################################################################################
+###################################################################################################
 
 # Text Color Variables
 # Check if the 'tput' command is available
@@ -267,12 +277,20 @@ fi
 . /etc/os-release
 
 # Get an adjusted ID independent of distro variants
+MAJOR_VERSION_ID=$(echo "${VERSION_ID}" | cut -d . -f 1)
+
+# Get an adjusted ID independent of distro variants
 if [ "${ID}" = "debian" ] || [ "${ID_LIKE#*debian}" != "${ID_LIKE}" ]; then
     ADJUSTED_ID="debian"
 elif [ "${ID}" = "arch" ] || [ "${ID_LIKE#*arch}" != "${ID_LIKE}" ]; then
     ADJUSTED_ID="arch"
 elif [ "${ID}" = "rhel" ] || [ "${ID}" = "fedora" ] || [ "${ID}" = "mariner" ] || [ "${ID_LIKE#*rhel}" != "${ID_LIKE}" ] || [ "${ID_LIKE#*fedora}" != "${ID_LIKE}" ] || [ "${ID_LIKE#*mariner}" != "${ID_LIKE}" ]; then
     ADJUSTED_ID="rhel"
+    if [ "${ID}" = "rhel" ] || [ "${ID#*alma}" != "${ID}" ] || [ "${ID#*rocky}" != "${ID}" ]; then
+        VERSION_CODENAME="rhel${MAJOR_VERSION_ID}"
+    else
+        VERSION_CODENAME="${ID}${MAJOR_VERSION_ID}"
+    fi
 elif [ "${ID}" = "alpine" ]; then
     ADJUSTED_ID="alpine"
 else
@@ -280,19 +298,36 @@ else
     exit 1
 fi
 
-# Setup PKG_MGR_CMD
-if type apt-get > /dev/null 2>&1; then
+if [ "${ADJUSTED_ID}" = "rhel" ] && [ "${VERSION_CODENAME-}" = "centos7" ]; then
+    # As of 1 July 2024, mirrorlist.centos.org no longer exists.
+    # Update the repo files to reference vault.centos.org.
+    sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
+    sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
+    sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
+fi
+
+# Setup INSTALL_CMD & PKG_MGR_CMD
+if type apt-get >/dev/null 2>&1; then
     PKG_MGR_CMD=apt-get
-elif type apk > /dev/null 2>&1; then
+    INSTALL_CMD="${PKG_MGR_CMD} -y install --no-install-recommends"
+elif type apk >/dev/null 2>&1; then
     PKG_MGR_CMD=apk
-elif type pacman > /dev/null 2>&1; then
+    INSTALL_CMD="${PKG_MGR_CMD} add --no-cache"
+elif type pacman >/dev/null 2>&1; then
     PKG_MGR_CMD=pacman
-elif type microdnf > /dev/null 2>&1; then
+    INSTALL_CMD="${PKG_MGR_CMD} -S --noconfirm --needed"
+elif type microdnf >/dev/null 2>&1; then
     PKG_MGR_CMD=microdnf
-elif type dnf > /dev/null 2>&1; then
+    INSTALL_CMD="${PKG_MGR_CMD} -y install --refresh --best --nodocs --noplugins --setopt=install_weak_deps=0"
+elif type dnf >/dev/null 2>&1; then
     PKG_MGR_CMD=dnf
-else
+    INSTALL_CMD="${PKG_MGR_CMD} -y install"
+elif type yum >/dev/null 2>&1; then
     PKG_MGR_CMD=yum
+    INSTALL_CMD="${PKG_MGR_CMD} -y install"
+else
+    printf "\n%sError: Unsupported or unrecognized package manager%s\n" "${RED}" "${CLEAR}"
+    exit 1
 fi
 
 if check_ping_support; then
