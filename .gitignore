@@ -1,0 +1,31 @@
+# Ignore temporary files #
+##########################
+*.tmp
+
+# Ignore any sensitive or environment-specific information #
+############################################################
+.env
+
+# Logs and databases #
+######################
+logs/
+*.log
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor-specific files #
+########################
+*~
+*.swp
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
