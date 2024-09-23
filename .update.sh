@@ -124,7 +124,7 @@ update_brew() {
     printf "\n%sUpdate Brew Formula's%s\n" "${GREEN}" "${CLEAR}"
 
     if ! command -v brew >/dev/null 2>&1; then
-        printf "\n%brew is not installed.%s\n" "${RED}" "${CLEAR}"
+        printf "\n%sBrew is not installed.%s\n" "${RED}" "${CLEAR}"
         return
     fi
 
