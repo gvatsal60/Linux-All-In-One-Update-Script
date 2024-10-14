@@ -28,10 +28,6 @@
 ###################################################################################################
 # Constants
 ###################################################################################################
-readonly SNIPPETS_DIR="snippets"
-readonly VSCODE_DIR=".vscode"
-readonly SNIPPET_FILES_PATTERN="*.code-snippets"
-
 readonly ALIAS_SOURCE_URL="https://raw.githubusercontent.com/gvatsal60/Linux-Aliases/HEAD/install.sh"
 
 ###################################################################################################
@@ -48,25 +44,5 @@ if command -v curl >/dev/null 2>&1; then
     curl -fsSL ${ALIAS_SOURCE_URL} | sh
 else
     echo "Error: curl is not installed. Unable to use Linux aliases"
-fi
-
-# Check if running in GitHub Codespaces by checking for `CODESPACE_NAME` env variable
-if [ -n "${CODESPACE_NAME}" ]; then
-    # Generate symlinks for snippet files
-    # Create the .vscode directory if it doesn't already exist.
-    mkdir -p "${VSCODE_DIR}"
-
-    # Unlink all symbolic links in the '.vscode' directory
-    find "${VSCODE_DIR}" -type l -name "${SNIPPET_FILES_PATTERN}" | while read -r file; do
-        unlink "${file}"
-    done
-
-    # Check if the 'snippets' directory exists
-    if [ -d "${SNIPPETS_DIR}" ]; then
-        # Find all .code-snippet files in the 'snippets' directory and create symbolic links
-        find "${SNIPPETS_DIR}" -type f -name "${SNIPPET_FILES_PATTERN}" | while read -r file; do
-            # Create a symbolic link in '.vscode' with the same base name
-            ln -s "$(realpath "${file}")" "${VSCODE_DIR}/$(basename "${file}")"
-        done
-    fi
+    exit 1
 fi
