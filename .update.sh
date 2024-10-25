@@ -130,9 +130,6 @@ update_brew() {
 
     brew update && brew upgrade && brew cleanup -s
 
-    printf "\n%sUpdate Brew Casks%s\n" "${GREEN}" "${CLEAR}"
-    brew outdated --cask && brew upgrade --cask && brew cleanup -s
-
     printf "\n%sBrew Diagnostics%s\n" "${GREEN}" "${CLEAR}"
     brew doctor && brew missing
 }

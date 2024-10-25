@@ -29,7 +29,7 @@ UPDATE_ALIAS_SOURCE_STR=$(
     cat <<EOF
 
 # Alias for Update
-alias update='sudo sh ${FILE_PATH}'
+${UPDATE_ALIAS_SEARCH_STR}
 EOF
 )
 
