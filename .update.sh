@@ -26,9 +26,17 @@ ADJUSTED_ID="None"
 ###################################################################################################
 
 # Function: println
-# Description: Prints each argument on a new line, suppressing any error messages.
+# Description: Prints a message to the console in green color, followed by a newline.
+# Usage: println "Your message here"
 println() {
-    command printf %s\\n "$*" 2>/dev/null
+    printf "\n${GREEN}%s${CLEAR}\n" "$*" 2>/dev/null
+}
+
+# Function: print_err
+# Description: Prints an error message to the console in red color, followed by a newline.
+# Usage: print_err "Your error message here"
+print_err() {
+    printf "\n${RED}%s${CLEAR}\n" "$*" >&2
 }
 
 # Function: clean_up
@@ -52,7 +60,7 @@ clean_up() {
         rm -rf /var/cache/pacman/pkg/*
         ;;
     *)
-        printf "\n%sError: Clean up not implemented for Linux distro: ${ADJUSTED_ID}%s\n" "${RED}" "${CLEAR}"
+        print_err "Error: Clean up not implemented for Linux distro: ${ADJUSTED_ID}"
         ;;
     esac
 }
@@ -65,21 +73,21 @@ os_pkg_update() {
     case ${ADJUSTED_ID} in
     debian)
         if [ "$(find /var/lib/apt/lists/* -maxdepth 1 -type f 2>/dev/null | wc -l)" -eq 0 ]; then
-            printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
+            println "Updating ${PKG_MGR_CMD} based packages..."
             if ! (${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} upgrade -y && ${PKG_MGR_CMD} autoremove -y && ${PKG_MGR_CMD} dist-upgrade -y); then
-                printf "\n%sError: Update failed.%s\n" "${RED}" "${CLEAR}"
+                print_err "Error: Update failed."
             fi
         fi
         ;;
     rhel)
         if [ "${PKG_MGR_CMD}" = "microdnf" ]; then
             if [ "$(find /var/cache/yum/* -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null | wc -l)" -eq 0 ]; then
-                printf "\n%sRunning ${PKG_MGR_CMD} makecache...%s\n" "${GREEN}" "${CLEAR}"
+                println "Running ${PKG_MGR_CMD} makecache..."
                 ${PKG_MGR_CMD} makecache
             fi
         else
             if [ "$(find "/var/cache/${PKG_MGR_CMD}"/* -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null | wc -l)" -eq 0 ]; then
-                printf "\n%sRunning ${PKG_MGR_CMD} check-update...%s\n" "${GREEN}" "${CLEAR}"
+                println "Running ${PKG_MGR_CMD} check-update..."
                 set +e
                 ${PKG_MGR_CMD} check-update
                 rc=$?
@@ -90,29 +98,29 @@ os_pkg_update() {
             fi
         fi
 
-        printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
+        println "Updating ${PKG_MGR_CMD} based packages..."
         if ! (${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} upgrade -y && ${PKG_MGR_CMD} autoremove -y); then
-            printf "\n%sError: Update failed.%s\n" "${RED}" "${CLEAR}"
+            print_err "Error: Update failed."
         fi
         ;;
     alpine)
         if [ "$(find /var/cache/apk/* 2>/dev/null | wc -l)" -eq 0 ]; then
-            printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
+            println "Updating ${PKG_MGR_CMD} based packages..."
             if ! (${PKG_MGR_CMD} update && ${PKG_MGR_CMD} upgrade); then
-                printf "\n%sError: Update failed.%s\n" "${RED}" "${CLEAR}"
+                print_err "Error: Update failed."
             fi
         fi
         ;;
     arch)
         if [ "$(find /var/cache/pacman/pkg/* 2>/dev/null | wc -l)" -eq 0 ]; then
-            printf "\n%sUpdating ${PKG_MGR_CMD} based packages...%s\n" "${GREEN}" "${CLEAR}"
+            println "Updating ${PKG_MGR_CMD} based packages..."
             if ! (${PKG_MGR_CMD} -Syu --noconfirm && ${PKG_MGR_CMD} -Rns "$(${PKG_MGR_CMD} -Qdtq)"); then
-                printf "\n%sError: Update failed.%s\n" "${RED}" "${CLEAR}"
+                print_err "Error: Update failed."
             fi
         fi
         ;;
     *)
-        printf "\n%sError: Unsupported or unrecognized Linux distribution: ${ADJUSTED_ID}%s\n" "${RED}" "${CLEAR}"
+        print_err "Error: Unsupported or unrecognized Linux distribution: ${ADJUSTED_ID}"
         exit 1
         ;;
     esac
@@ -121,26 +129,26 @@ os_pkg_update() {
 # Function: update_brew
 # Description: Updates Homebrew formulas and casks, performs cleanup, and runs diagnostics.
 update_brew() {
-    printf "\n%sUpdate Brew Formula's%s\n" "${GREEN}" "${CLEAR}"
+    println "Update Brew Formula's"
 
     if ! command -v brew >/dev/null 2>&1; then
-        printf "\n%sBrew is not installed.%s\n" "${RED}" "${CLEAR}"
+        print_err "Brew is not installed."
         return
     fi
 
     brew update && brew upgrade && brew cleanup -s
 
-    printf "\n%sBrew Diagnostics%s\n" "${GREEN}" "${CLEAR}"
+    println "Brew Diagnostics"
     brew doctor && brew missing
 }
 
 # Function: update_vscode_ext
 # Description: Updates Visual Studio Code extensions if VSCode is installed.
 update_vscode_ext() {
-    printf "\n%sUpdating VSCode Extensions%s\n" "${GREEN}" "${CLEAR}"
+    println "Updating VSCode Extensions"
 
     if ! command -v code >/dev/null 2>&1; then
-        printf "\n%sVSCode is not installed.%s\n" "${RED}" "${CLEAR}"
+        print_err "VSCode is not installed."
         return
     fi
 
@@ -150,10 +158,10 @@ update_vscode_ext() {
 # Function: update_gem
 # Description: Updates RubyGems if the 'gem' command is installed.
 update_gem() {
-    printf "\n%sUpdating Gems%s\n" "${GREEN}" "${CLEAR}"
+    println "Updating Gems"
 
     if ! command -v gem >/dev/null 2>&1; then
-        printf "\n%sGem is not installed.%s\n" "${RED}" "${CLEAR}"
+        print_err "Gem is not installed."
         return
     fi
 
@@ -163,10 +171,10 @@ update_gem() {
 # Function: update_npm
 # Description: Updates Npm packages if the 'npm' command is installed.
 update_npm() {
-    printf "\n%sUpdating Npm Packages%s\n" "${GREEN}" "${CLEAR}"
+    println "Updating Npm Packages"
 
     if ! command -v npm >/dev/null 2>&1; then
-        printf "\n%sNpm is not installed.%s\n" "${RED}" "${CLEAR}"
+        print_err "Npm is not installed."
         return
     fi
 
@@ -176,10 +184,10 @@ update_npm() {
 # Function: update_yarn
 # Description: Updates Yarn packages if the 'yarn' command is installed.
 update_yarn() {
-    printf "\n%sUpdating Yarn Packages%s\n" "${GREEN}" "${CLEAR}"
+    println "Updating Yarn Packages"
 
     if ! command -v yarn >/dev/null 2>&1; then
-        printf "\n%sYarn is not installed.%s\n" "${RED}" "${CLEAR}"
+        print_err "Yarn is not installed."
         return
     fi
 
@@ -189,15 +197,28 @@ update_yarn() {
 # Function: update_pip3
 # Description: Updates pip packages if the 'pip3' command is installed.
 update_pip3() {
-    printf "\n%sUpdating Python 3.x pips%s\n" "${GREEN}" "${CLEAR}"
+    println "Updating Python 3.x pips"
 
     if ! command -v python3 >/dev/null 2>&1 || ! command -v pip3 >/dev/null 2>&1; then
-        printf "\n%sPython 3 or pip3 is not installed.%s\n" "${RED}" "${CLEAR}"
+        print_err "Python3 or pip3 is not installed."
         return
     fi
 
     # Running with a non-root user
     python3 -m pip list --outdated --format=columns | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 python3 -m pip install -U # FIXME
+}
+
+# Function: update_cargo
+# Description: Updates cargo packages if the 'cargo' command is installed.
+update_cargo() {
+    println "Updating Rust Cargo Crates"
+
+    if ! command -v cargo >/dev/null 2>&1; then
+        print_err "Rust/Cargo is not installed."
+        return
+    fi
+
+    cargo install "$(cargo install --list | grep -E '^[a-z0-9_-]+ v[0-9.]+:$' | cut -f1 -d' ')"
 }
 
 # Function: check_ping_support
@@ -222,8 +243,8 @@ check_ping_support() {
             ${INSTALL_CMD} iputils
             ;;
         *)
-            printf "\n%sError: Unable to install ping for distro ${ID}%s\n" "${RED}" "${CLEAR}"
-            printf "\n%sSkipping ping installation... %s\n" "${RED}" "${CLEAR}"
+            print_err "Error: Unable to install ping for distro ${ID}"
+            print_err "Skipping ping installation..."
             ;;
         esac
     fi
@@ -232,7 +253,7 @@ check_ping_support() {
     if ping -q -W 1 -c 1 ${_PING_IP} >/dev/null 2>&1; then
         return 0
     else
-        printf "\n%sError: Network connectivity issue.%s\n" "${RED}" "${CLEAR}"
+        print_err "Error: Network connectivity issue."
         exit 1
     fi
 }
@@ -265,7 +286,7 @@ fi
 
 # Check if the script is running as root
 if [ "$(id -u)" -ne 0 ]; then
-    printf "\n%sError: Script must be run as root. Use sudo, su, or add "USER root" to your Dockerfile before running this script..%s\n" "${RED}" "${CLEAR}"
+    print_err "Error: Script must be run as root. Use sudo, su, or add "USER root" to your Dockerfile before running this script.."
     exit 1
 fi
 
@@ -291,7 +312,7 @@ elif [ "${ID}" = "rhel" ] || [ "${ID}" = "fedora" ] || [ "${ID}" = "mariner" ] |
 elif [ "${ID}" = "alpine" ]; then
     ADJUSTED_ID="alpine"
 else
-    printf "\n%sError: Linux distro ${ID} not supported.%s\n" "${RED}" "${CLEAR}"
+    print_err "Error: Linux distro ${ID} not supported."
     exit 1
 fi
 
@@ -323,7 +344,7 @@ elif type yum >/dev/null 2>&1; then
     PKG_MGR_CMD=yum
     INSTALL_CMD="${PKG_MGR_CMD} -y install"
 else
-    printf "\n%sError: Unsupported or unrecognized package manager%s\n" "${RED}" "${CLEAR}"
+    print_err "Error: Unsupported or unrecognized package manager"
     exit 1
 fi
 
@@ -336,5 +357,5 @@ if check_ping_support; then
     update_npm
     update_yarn
     update_pip3
-    printf "\n"
+    update_cargo
 fi

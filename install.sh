@@ -20,10 +20,9 @@
 set -e
 
 readonly FILE_NAME=".update.sh"
-readonly FILE_PATH="${HOME}/${FILE_NAME}"
 readonly UPDATE_SCRIPT_SOURCE_URL="https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-Script/HEAD/${FILE_NAME}"
 
-readonly UPDATE_ALIAS_SEARCH_STR="alias update='sudo sh ${FILE_PATH}'"
+readonly UPDATE_ALIAS_SEARCH_STR="alias update='curl -fsSL ${UPDATE_SCRIPT_SOURCE_URL} | ${SHELL}'"
 
 UPDATE_ALIAS_SOURCE_STR=$(
     cat <<EOF
@@ -38,9 +37,17 @@ EOF
 ###################################################################################################
 
 # Function: println
-# Description: Prints each argument on a new line, suppressing any error messages.
+# Description: Prints a message to the console, followed by a newline.
+# Usage: println "Your message here"
 println() {
-    command printf %s\\n "$*" 2>/dev/null
+    printf "\n%s\n" "$*" 2>/dev/null
+}
+
+# Function: print_err
+# Description: Prints an error message to the console in red color, followed by a newline.
+# Usage: print_err "Your error message here"
+print_err() {
+    printf "\n%s\n" "$*" >&2
 }
 
 # Function: updaterc
@@ -55,7 +62,7 @@ updaterc() {
         _rc="${HOME}/.profile"
         ;;
     *)
-        println >&2 "Error: Unsupported or unrecognized Linux distribution ${ADJUSTED_ID}"
+        print_err "Error: Unsupported or unrecognized Linux distribution ${ADJUSTED_ID}"
         exit 1
         ;;
     esac
@@ -83,21 +90,6 @@ updaterc() {
     println ">>> source ${_rc} # This loads update alias"
 }
 
-# Function: dw_file
-# Description: Download file using wget or curl if available
-dw_file() {
-    # Check if curl is available
-    if command -v curl >/dev/null 2>&1; then
-        curl -fsSL -o "${FILE_PATH}" ${UPDATE_SCRIPT_SOURCE_URL}
-    # Check if wget is available
-    elif command -v wget >/dev/null 2>&1; then
-        wget -O "${FILE_PATH}" ${UPDATE_SCRIPT_SOURCE_URL}
-    else
-        println >&2 "Error: Either install wget or curl"
-        exit 1
-    fi
-}
-
 ###################################################################################################
 # Main Script
 ###################################################################################################
@@ -120,41 +112,21 @@ Linux)
     elif [ "${ID}" = "alpine" ]; then
         ADJUSTED_ID="alpine"
     else
-        println >&2 "Error: Linux distro ${ID} not supported."
+        print_err "Error: Linux distro ${ID} not supported."
         exit 1
     fi
     ;;
 *)
-    println >&2 "Error: Unsupported or unrecognized OS distribution ${ADJUSTED_ID}"
+    print_err "Error: Unsupported or unrecognized OS distribution ${ADJUSTED_ID}"
     exit 1
     ;;
 esac
 
-# Default behavior
-_action="y"
-
-# Check if the script is running in interactive mode, for non-interactive mode `_action` defaults to 'y'
-if [ -t 0 ]; then
-    # Interactive mode
-    if [ -f "${FILE_PATH}" ]; then
-        println "=> File already exists: ${FILE_PATH}"
-        println "=> Do you want to replace it (default: y)? [y/n]: "
-        # Read input, use default value if no input is given
-        read -r _rp_conf
-        _rp_conf="${_rp_conf:-${_action}}"
-        _action="${_rp_conf}"
-    fi
-fi
-
-if [ "${_action}" = "y" ]; then
-    println "=> Updating the file: ${FILE_PATH}"
-    # Download the necessary file from the specified source
-    dw_file
-    # Update the configuration file with the latest changes
-    updaterc
-elif [ "${_action}" = "n" ]; then
-    println "=> Keeping existing file: ${FILE_PATH}"
-else
-    println >&2 "Error: Invalid input. Please check your entry and try again."
+# Check if curl is available
+if ! command -v curl >/dev/null 2>&1; then
+    print_err "Error: curl is required but not installed. Please install curl."
     exit 1
 fi
+
+# Update the rc (.bashrc, .profile ...) file for `update` alias
+update_rc
