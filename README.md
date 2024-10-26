@@ -106,8 +106,10 @@ Feel free to use, modify, and distribute this script to streamline the update pr
 Currently including:
 
 - 🐧 Linux Package Update (`apt/dnf/yum/microdnf/pacman`)
+- 🍺 Homebrew formulas and casks (`brew`)
 - 🧑‍💻 VS Code Extensions (`code`)
-- 📦 Node Package Manager (`npm`)
 - 💎 RubyGems (`gem`)
+- 📦 Node Package Manager (`npm`)
 - 🧶 Yarn (`yarn`)
 - 🐍 Python3 (`pip3`)
+- 🧶 Rust (`cargo`)
