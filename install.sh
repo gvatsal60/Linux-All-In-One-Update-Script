@@ -50,9 +50,9 @@ print_err() {
     printf "\n%s\n" "$*" >&2
 }
 
-# Function: updaterc
+# Function: update_rc
 # Description: Update shell configuration files
-updaterc() {
+update_rc() {
     _rc=""
     case $ADJUSTED_ID in
     debian | rhel)
