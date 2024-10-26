@@ -44,7 +44,7 @@ println() {
 }
 
 # Function: print_err
-# Description: Prints an error message to the console in red color, followed by a newline.
+# Description: Prints an error message to the console, followed by a newline.
 # Usage: print_err "Your error message here"
 print_err() {
     printf "\n%s\n" "$*" >&2
