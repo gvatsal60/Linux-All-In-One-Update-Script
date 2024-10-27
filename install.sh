@@ -148,7 +148,7 @@ update_rc() {
 
     # Check if `alias update='sudo sh ${HOME}/.update.sh'` is already defined, if not then append it
     if [ -f "${_rc}" ]; then
-        if ! grep -qxF "${UPDATE_SOURCE_STR}" "${_rc}"; then
+        if ! awk '/^update\(\) {/,/^}/' "${_rc}" | grep -q 'curl'; then
             println "=> Updating ${_rc} for ${ADJUSTED_ID}..."
             println "${UPDATE_SOURCE_STR}" >>"${_rc}"
         fi
