@@ -39,6 +39,21 @@ print_err() {
     printf "\n${RED}%s${CLEAR}\n" "$*" >&2
 }
 
+# Function: check_command
+# Description: Checks if a specified command is available in the system.
+#              Prints a message indicating whether the command is installed.
+# Usage: check_command "command_name"
+check_command() {
+    command_name="$1"
+
+    if ! command -v "${command_name}" >/dev/null 2>&1; then
+        print_err "${command_name} is not installed."
+        return 1
+    fi
+
+    return 0
+}
+
 # Function: clean_up
 # Description: Performs system cleanup tasks based on the detected Linux distribution.
 #              Executes commands to clean package cache and remove unnecessary packages.
@@ -131,13 +146,11 @@ os_pkg_update() {
 update_brew() {
     println "Update Brew Formula's"
 
-    if ! command -v brew >/dev/null 2>&1; then
-        print_err "Brew is not installed."
+    if ! check_command brew; then
         return
     fi
 
     brew update && brew upgrade && brew cleanup -s
-
     println "Brew Diagnostics"
     brew doctor && brew missing
 }
@@ -147,8 +160,7 @@ update_brew() {
 update_vscode_ext() {
     println "Updating VSCode Extensions"
 
-    if ! command -v code >/dev/null 2>&1; then
-        print_err "VSCode is not installed."
+    if ! check_command code; then
         return
     fi
 
@@ -160,8 +172,7 @@ update_vscode_ext() {
 update_gem() {
     println "Updating Gems"
 
-    if ! command -v gem >/dev/null 2>&1; then
-        print_err "Gem is not installed."
+    if ! check_command gem; then
         return
     fi
 
@@ -173,8 +184,7 @@ update_gem() {
 update_npm() {
     println "Updating Npm Packages"
 
-    if ! command -v npm >/dev/null 2>&1; then
-        print_err "Npm is not installed."
+    if ! check_command npm; then
         return
     fi
 
@@ -186,8 +196,7 @@ update_npm() {
 update_yarn() {
     println "Updating Yarn Packages"
 
-    if ! command -v yarn >/dev/null 2>&1; then
-        print_err "Yarn is not installed."
+    if ! check_command yarn; then
         return
     fi
 
@@ -199,8 +208,7 @@ update_yarn() {
 update_pip3() {
     println "Updating Python 3.x pips"
 
-    if ! command -v python3 >/dev/null 2>&1 || ! command -v pip3 >/dev/null 2>&1; then
-        print_err "Python3 or pip3 is not installed."
+    if ! check_command python3 || ! check_command pip3; then
         return
     fi
 
@@ -213,49 +221,83 @@ update_pip3() {
 update_cargo() {
     println "Updating Rust Cargo Crates"
 
-    if ! command -v cargo >/dev/null 2>&1; then
-        print_err "Rust/Cargo is not installed."
+    if ! check_command cargo; then
         return
     fi
 
     cargo install "$(cargo install --list | grep -E '^[a-z0-9_-]+ v[0-9.]+:$' | cut -f1 -d' ')"
 }
 
-# Function: check_ping_support
-# Description: Checks if the system can ping an external IP address (8.8.8.8) to verify network connectivity.
-#              Attempts to ping without sudo first, then retries with sudo if necessary.
-#              Prints messages indicating the status of ping support and returns appropriate exit codes.
-# Returns:
-#   0 - Success, ping is supported.
-check_ping_support() {
-    if ! command -v ping >/dev/null 2>&1; then
+# Function: install_pkg
+# Description: Installs a specified package using the appropriate package manager
+#              if the system's package manager is available.
+install_pkg() {
+    # Setup INSTALL_CMD & PKG_MGR_CMD
+    if type apt-get >/dev/null 2>&1; then
+        PKG_MGR_CMD=apt-get
+        INSTALL_CMD="${PKG_MGR_CMD} -y install --no-install-recommends"
+    elif type apk >/dev/null 2>&1; then
+        PKG_MGR_CMD=apk
+        INSTALL_CMD="${PKG_MGR_CMD} add --no-cache"
+    elif type pacman >/dev/null 2>&1; then
+        PKG_MGR_CMD=pacman
+        INSTALL_CMD="${PKG_MGR_CMD} -S --noconfirm --needed"
+    elif type microdnf >/dev/null 2>&1; then
+        PKG_MGR_CMD=microdnf
+        INSTALL_CMD="${PKG_MGR_CMD} -y install --refresh --best --nodocs --noplugins --setopt=install_weak_deps=0"
+    elif type dnf >/dev/null 2>&1; then
+        PKG_MGR_CMD=dnf
+        INSTALL_CMD="${PKG_MGR_CMD} -y install"
+    elif type yum >/dev/null 2>&1; then
+        PKG_MGR_CMD=yum
+        INSTALL_CMD="${PKG_MGR_CMD} -y install"
+    else
+        print_err "Error: Unsupported or unrecognized package manager"
+        exit 1
+    fi
+
+    pkg_name="$1"
+
+    if ! check_command "${pkg_name}"; then
         case ${ADJUSTED_ID} in
         debian)
-            ${PKG_MGR_CMD} update && ${INSTALL_CMD} iputils-ping
+            ${PKG_MGR_CMD} update && ${INSTALL_CMD} "${pkg_name}"
             ;;
         rhel)
-            ${PKG_MGR_CMD} update && ${INSTALL_CMD} iputils
+            ${PKG_MGR_CMD} update && ${INSTALL_CMD} "${pkg_name}"
             ;;
         alpine)
-            ${PKG_MGR_CMD} update && ${INSTALL_CMD} iputils
+            ${PKG_MGR_CMD} update && ${INSTALL_CMD} "${pkg_name}"
             ;;
         arch)
-            ${INSTALL_CMD} iputils
+            ${INSTALL_CMD} "${pkg_name}"
             ;;
         *)
-            print_err "Error: Unable to install ping for distro ${ID}"
-            print_err "Skipping ping installation..."
+            print_err "Error: Unable to install ${pkg_name} for distro ${ID}"
             ;;
         esac
     fi
+}
 
-    readonly _PING_IP=8.8.8.8
-    if ping -q -W 1 -c 1 ${_PING_IP} >/dev/null 2>&1; then
-        return 0
-    else
-        print_err "Error: Network connectivity issue."
-        exit 1
+# Function: install_curl
+# Description: Checks if internet is available
+check_internet() {
+    readonly TEST_URL="https://www.google.com"
+    readonly TIMEOUT=2
+
+    # Install curl
+    install_pkg curl
+
+    # Check if curl is available
+    if check_command curl; then
+        # Check if the internet is reachable
+        if ! curl -s --max-time ${TIMEOUT} --head --request GET ${TEST_URL} | grep "200 OK" >/dev/null; then
+            print_err "Internet Disabled!!!"
+            return 1
+        fi
     fi
+
+    return 0
 }
 
 ###################################################################################################
@@ -266,7 +308,7 @@ check_ping_support() {
 # Check if the 'tput' command is available
 # - '/dev/null 2>&1' redirects standard output (stdout) and standard error (stderr) to /dev/null, suppressing output.
 # - If 'tput' is found, it likely indicates that color support is available.
-if command -v tput >/dev/null 2>&1; then
+if check_command tput; then
     RED=$(tput setaf 1)   # Set text color to red
     GREEN=$(tput setaf 2) # Set text color to green
     CLEAR=$(tput sgr0)    # Reset text formatting
@@ -324,31 +366,7 @@ if [ "${ADJUSTED_ID}" = "rhel" ] && [ "${VERSION_CODENAME-}" = "centos7" ]; then
     sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
 fi
 
-# Setup INSTALL_CMD & PKG_MGR_CMD
-if type apt-get >/dev/null 2>&1; then
-    PKG_MGR_CMD=apt-get
-    INSTALL_CMD="${PKG_MGR_CMD} -y install --no-install-recommends"
-elif type apk >/dev/null 2>&1; then
-    PKG_MGR_CMD=apk
-    INSTALL_CMD="${PKG_MGR_CMD} add --no-cache"
-elif type pacman >/dev/null 2>&1; then
-    PKG_MGR_CMD=pacman
-    INSTALL_CMD="${PKG_MGR_CMD} -S --noconfirm --needed"
-elif type microdnf >/dev/null 2>&1; then
-    PKG_MGR_CMD=microdnf
-    INSTALL_CMD="${PKG_MGR_CMD} -y install --refresh --best --nodocs --noplugins --setopt=install_weak_deps=0"
-elif type dnf >/dev/null 2>&1; then
-    PKG_MGR_CMD=dnf
-    INSTALL_CMD="${PKG_MGR_CMD} -y install"
-elif type yum >/dev/null 2>&1; then
-    PKG_MGR_CMD=yum
-    INSTALL_CMD="${PKG_MGR_CMD} -y install"
-else
-    print_err "Error: Unsupported or unrecognized package manager"
-    exit 1
-fi
-
-if check_ping_support; then
+if check_internet; then
     clean_up
     os_pkg_update
     update_brew
