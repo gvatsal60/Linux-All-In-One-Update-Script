@@ -22,13 +22,26 @@ set -e
 readonly FILE_NAME=".update.sh"
 readonly UPDATE_SCRIPT_SOURCE_URL="https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-Script/HEAD/${FILE_NAME}"
 
-readonly UPDATE_ALIAS_SEARCH_STR="alias update='curl -fsSL ${UPDATE_SCRIPT_SOURCE_URL} | sudo ${SHELL}'"
-
-UPDATE_ALIAS_SOURCE_STR=$(
+UPDATE_SOURCE_STR=$(
     cat <<EOF
 
-# Alias for Update
-${UPDATE_ALIAS_SEARCH_STR}
+# System Update
+update() {
+    # Check if curl is available
+    if ! command -v curl >/dev/null 2>&1; then
+        echo "Error: curl is required but not installed. Please install curl."
+        exit 1
+    fi
+    readonly TEST_URL="https://www.google.com"
+    readonly TIMEOUT=2
+    # Check if the internet is reachable
+    if ! curl -s --max-time \${TIMEOUT} --head --request GET \${TEST_URL} | grep "200 OK" >/dev/null; then
+        echo "Internet Disabled!!!"
+        exit 1
+    fi
+    curl -fsSL ${UPDATE_SCRIPT_SOURCE_URL} | \${SHELL}
+}
+
 EOF
 )
 
@@ -40,21 +53,87 @@ EOF
 # Description: Prints a message to the console, followed by a newline.
 # Usage: println "Your message here"
 println() {
-    printf "\n%s\n" "$*" 2>/dev/null
+    printf "%s\n" "$*" 2>/dev/null
 }
 
 # Function: print_err
 # Description: Prints an error message to the console, followed by a newline.
 # Usage: print_err "Your error message here"
 print_err() {
-    printf "\n%s\n" "$*" >&2
+    printf "%s\n" "$*" >&2
+}
+
+# Function: check_command
+# Description: Checks if a specified command is available in the system.
+#              Prints a message indicating whether the command is installed.
+# Usage: check_command "command_name"
+check_command() {
+    command_name="$1"
+
+    if ! command -v "${command_name}" >/dev/null 2>&1; then
+        print_err "${command_name} is not installed."
+        return 1
+    fi
+
+    return 0
+}
+
+# Function: install_pkg
+# Description: Installs a specified package using the appropriate package manager
+#              if the system's package manager is available.
+install_pkg() {
+    pkg_name="$1"
+
+    if ! check_command "${pkg_name}"; then
+        # Setup INSTALL_CMD & PKG_MGR_CMD
+        if type apt-get >/dev/null 2>&1; then
+            PKG_MGR_CMD=apt-get
+            INSTALL_CMD="${PKG_MGR_CMD} -y install --no-install-recommends"
+        elif type apk >/dev/null 2>&1; then
+            PKG_MGR_CMD=apk
+            INSTALL_CMD="${PKG_MGR_CMD} add --no-cache"
+        elif type pacman >/dev/null 2>&1; then
+            PKG_MGR_CMD=pacman
+            INSTALL_CMD="${PKG_MGR_CMD} -S --noconfirm --needed"
+        elif type microdnf >/dev/null 2>&1; then
+            PKG_MGR_CMD=microdnf
+            INSTALL_CMD="${PKG_MGR_CMD} -y install --refresh --best --nodocs --noplugins --setopt=install_weak_deps=0"
+        elif type dnf >/dev/null 2>&1; then
+            PKG_MGR_CMD=dnf
+            INSTALL_CMD="${PKG_MGR_CMD} -y install"
+        elif type yum >/dev/null 2>&1; then
+            PKG_MGR_CMD=yum
+            INSTALL_CMD="${PKG_MGR_CMD} -y install"
+        else
+            print_err "Error: Unsupported or unrecognized package manager"
+            exit 1
+        fi
+
+        case ${ADJUSTED_ID} in
+        debian)
+            ${PKG_MGR_CMD} update && ${INSTALL_CMD} "${pkg_name}"
+            ;;
+        rhel)
+            ${PKG_MGR_CMD} update && ${INSTALL_CMD} "${pkg_name}"
+            ;;
+        alpine)
+            ${PKG_MGR_CMD} update && ${INSTALL_CMD} "${pkg_name}"
+            ;;
+        arch)
+            ${INSTALL_CMD} "${pkg_name}"
+            ;;
+        *)
+            print_err "Error: Unable to install ${pkg_name} for distro ${ID}"
+            ;;
+        esac
+    fi
 }
 
 # Function: update_rc
 # Description: Update shell configuration files
 update_rc() {
     _rc=""
-    case $ADJUSTED_ID in
+    case ${ADJUSTED_ID} in
     debian | rhel)
         _rc="${HOME}/.bashrc"
         ;;
@@ -69,9 +148,9 @@ update_rc() {
 
     # Check if `alias update='sudo sh ${HOME}/.update.sh'` is already defined, if not then append it
     if [ -f "${_rc}" ]; then
-        if ! grep -qxF "${UPDATE_ALIAS_SEARCH_STR}" "${_rc}"; then
+        if ! grep -qxF "${UPDATE_SOURCE_STR}" "${_rc}"; then
             println "=> Updating ${_rc} for ${ADJUSTED_ID}..."
-            println "${UPDATE_ALIAS_SOURCE_STR}" >>"${_rc}"
+            println "${UPDATE_SOURCE_STR}" >>"${_rc}"
         fi
     else
         # Notify if the rc file does not exist
@@ -80,7 +159,7 @@ update_rc() {
         # Create the rc file
         touch "${_rc}"
         # Append the sourcing block to the newly created rc file
-        println "${UPDATE_ALIAS_SOURCE_STR}" >>"${_rc}"
+        println "${UPDATE_SOURCE_STR}" >>"${_rc}"
     fi
 
     println ""
@@ -123,9 +202,9 @@ Linux)
 esac
 
 # Check if curl is available
-if ! command -v curl >/dev/null 2>&1; then
-    print_err "Error: curl is required but not installed. Please install curl."
-    exit 1
+if ! check_command curl; then
+    # Install curl
+    install_pkg curl
 fi
 
 # Update the rc (.bashrc, .profile ...) file for `update` alias
