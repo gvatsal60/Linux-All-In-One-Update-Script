@@ -279,22 +279,30 @@ install_pkg() {
     fi
 }
 
-# Function: install_curl
+# Function: check_internet
 # Description: Checks if internet is available
 check_internet() {
-    readonly TEST_URL="https://www.google.com"
-    readonly TIMEOUT=2
+    if ! check_command curl; then
+        print_err "Error: curl is required but not installed. Please install curl."
+        return 1
+    fi
 
-    # Install curl
-    install_pkg curl
+    # Check internet connection by pinging a reliable server
+    TEST_URL="https://www.google.com"
 
-    # Check if curl is available
-    if check_command curl; then
-        # Check if the internet is reachable
-        if ! curl -s --max-time ${TIMEOUT} --head --request GET ${TEST_URL} | grep "200 OK" >/dev/null; then
-            print_err "Internet Disabled!!!"
-            return 1
-        fi
+    # Use curl to check the connection
+    TEST_RESP=$(curl -Is --connect-timeout 5 --max-time 10 "${TEST_URL}" 2>/dev/null | head -n 1)
+
+    # Check if response is empty
+    if [ -z "${TEST_RESP}" ]; then
+        print_err "No Internet Connection!!!"
+        return 1
+    fi
+
+    # Check for "200" in the response
+    if ! printf "%s" "${TEST_RESP}" | grep -q "200"; then
+        print_err "Internet is not working!!!"
+        return 1
     fi
 
     return 0
