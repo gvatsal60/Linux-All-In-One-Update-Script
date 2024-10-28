@@ -212,8 +212,8 @@ update_pip3() {
         return
     fi
 
-    # Running with a non-root user
-    python3 -m pip list --outdated --format=columns | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 python3 -m pip install -U # FIXME
+    # The `--break-system-packages` option is included to bypass the "externally-managed-environment" error
+    python3 -m pip list --outdated --format=columns | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 python3 -m pip install -U --break-system-packages
 }
 
 # Function: update_cargo
