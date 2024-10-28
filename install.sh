@@ -51,7 +51,7 @@ update() {
         return
     fi
 
-    curl -fsSL ${UPDATE_SCRIPT_SOURCE_URL} | \${SHELL}
+    curl -fsSL ${UPDATE_SCRIPT_SOURCE_URL} | sudo \${SHELL}
 }
 
 EOF
