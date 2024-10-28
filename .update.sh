@@ -232,30 +232,6 @@ update_cargo() {
 # Description: Installs a specified package using the appropriate package manager
 #              if the system's package manager is available.
 install_pkg() {
-    # Setup INSTALL_CMD & PKG_MGR_CMD
-    if type apt-get >/dev/null 2>&1; then
-        PKG_MGR_CMD=apt-get
-        INSTALL_CMD="${PKG_MGR_CMD} -y install --no-install-recommends"
-    elif type apk >/dev/null 2>&1; then
-        PKG_MGR_CMD=apk
-        INSTALL_CMD="${PKG_MGR_CMD} add --no-cache"
-    elif type pacman >/dev/null 2>&1; then
-        PKG_MGR_CMD=pacman
-        INSTALL_CMD="${PKG_MGR_CMD} -S --noconfirm --needed"
-    elif type microdnf >/dev/null 2>&1; then
-        PKG_MGR_CMD=microdnf
-        INSTALL_CMD="${PKG_MGR_CMD} -y install --refresh --best --nodocs --noplugins --setopt=install_weak_deps=0"
-    elif type dnf >/dev/null 2>&1; then
-        PKG_MGR_CMD=dnf
-        INSTALL_CMD="${PKG_MGR_CMD} -y install"
-    elif type yum >/dev/null 2>&1; then
-        PKG_MGR_CMD=yum
-        INSTALL_CMD="${PKG_MGR_CMD} -y install"
-    else
-        print_err "Error: Unsupported or unrecognized package manager"
-        exit 1
-    fi
-
     pkg_name="$1"
 
     if ! check_command "${pkg_name}"; then
@@ -372,6 +348,30 @@ if [ "${ADJUSTED_ID}" = "rhel" ] && [ "${VERSION_CODENAME-}" = "centos7" ]; then
     sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
     sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
     sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
+fi
+
+# Setup INSTALL_CMD & PKG_MGR_CMD
+if type apt-get >/dev/null 2>&1; then
+    PKG_MGR_CMD=apt-get
+    INSTALL_CMD="${PKG_MGR_CMD} -y install --no-install-recommends"
+elif type apk >/dev/null 2>&1; then
+    PKG_MGR_CMD=apk
+    INSTALL_CMD="${PKG_MGR_CMD} add --no-cache"
+elif type pacman >/dev/null 2>&1; then
+    PKG_MGR_CMD=pacman
+    INSTALL_CMD="${PKG_MGR_CMD} -S --noconfirm --needed"
+elif type microdnf >/dev/null 2>&1; then
+    PKG_MGR_CMD=microdnf
+    INSTALL_CMD="${PKG_MGR_CMD} -y install --refresh --best --nodocs --noplugins --setopt=install_weak_deps=0"
+elif type dnf >/dev/null 2>&1; then
+    PKG_MGR_CMD=dnf
+    INSTALL_CMD="${PKG_MGR_CMD} -y install"
+elif type yum >/dev/null 2>&1; then
+    PKG_MGR_CMD=yum
+    INSTALL_CMD="${PKG_MGR_CMD} -y install"
+else
+    print_err "Error: Unsupported or unrecognized package manager"
+    exit 1
 fi
 
 if check_internet; then
