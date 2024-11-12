@@ -37,7 +37,7 @@ update() {
     TEST_URL="https://www.google.com"
 
     # Use curl to check the connection
-    TEST_RESP=\$(curl -Is --connect-timeout 5 --max-time 10 "\${TEST_URL}" 2>/dev/null | head -n 1)
+    TEST_RESP=\$(curl -Is --connect-timeout 2 --max-time 5 "\${TEST_URL}" 2>/dev/null | head -n 1)
 
     # Check if response is empty
     if [ -z "\${TEST_RESP}" ]; then
