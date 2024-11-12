@@ -225,7 +225,7 @@ update_cargo() {
         return
     fi
 
-    cargo install "$(cargo install --list | grep -E '^[a-z0-9_-]+ v[0-9.]+:$' | cut -f1 -d' ')"
+    cargo install --list | grep -E '^[a-z0-9_-]+ v[0-9.]+:$' | cut -f1 -d' ' | xargs cargo install
 }
 
 # Function: install_pkg
@@ -267,7 +267,7 @@ check_internet() {
     TEST_URL="https://www.google.com"
 
     # Use curl to check the connection
-    TEST_RESP=$(curl -Is --connect-timeout 5 --max-time 10 "${TEST_URL}" 2>/dev/null | head -n 1)
+    TEST_RESP=$(curl -Is --connect-timeout 2 --max-time 5 "${TEST_URL}" 2>/dev/null | head -n 1)
 
     # Check if response is empty
     if [ -z "${TEST_RESP}" ]; then
