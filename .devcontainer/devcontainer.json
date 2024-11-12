@@ -3,15 +3,6 @@
     "SYS_PTRACE"
   ],
   "customizations": {
-    "codespaces": {
-      "repositories": {
-        "gvatsal60/Linux-All-In-One-Update-Script": {
-          "permissions": {
-            "contents": "write"
-          }
-        }
-      }
-    },
     "vscode": {
       "extensions": [
         "DavidAnson.vscode-markdownlint",
