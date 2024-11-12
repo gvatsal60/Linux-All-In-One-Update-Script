@@ -3,6 +3,15 @@
     "SYS_PTRACE"
   ],
   "customizations": {
+    "codespaces": {
+      "repositories": {
+        "gvatsal60/Linux-All-In-One-Update-Script": {
+          "permissions": {
+            "contents": "write"
+          }
+        }
+      }
+    },
     "vscode": {
       "extensions": [
         "DavidAnson.vscode-markdownlint",
@@ -62,7 +71,7 @@
   },
   "image": "mcr.microsoft.com/devcontainers/base:noble",
   "mounts": [
-    "source=${containerWorkspaceFolder}/snippets,target=${containerWorkspaceFolder}/.vscode,type=bind,consistency=cached,readonly"
+    "source=${containerWorkspaceFolder}/snippets,target=${containerWorkspaceFolder}/.vscode,type=volume,consistency=cached,readonly"
   ],
   "postCreateCommand": "chmod +x ${containerWorkspaceFolder}/.devcontainer/postCreateScript.sh && ${containerWorkspaceFolder}/.devcontainer/postCreateScript.sh",
   "runArgs": [
