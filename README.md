@@ -1,23 +1,30 @@
 # Linux All-In-One Update Script
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://img.shields.io/github/license/gvatsal60/Linux-All-In-One-Update-Script)
-[![build status](https://github.com/gvatsal60/Linux-All-In-One-Update-Script/actions/workflows/ShellCheck.yaml/badge.svg)](https://github.com/gvatsal60/Linux-All-In-One-Update-Script/actions/workflows/ShellCheck.yaml)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/gvatsal60/Linux-All-In-One-Update-Script/master.svg)](https://results.pre-commit.ci/latest/github/gvatsal60/Linux-All-In-One-Update-Script/HEAD)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-Yes-green.svg)](https://GitHub.com/gvatsal60/Linux-All-In-One-Update-Script/graphs/commit-activity)
+[![CodeFactor](https://www.codefactor.io/repository/github/gvatsal60/linux-all-in-one-update-script/badge)](https://www.codefactor.io/repository/github/gvatsal60/linux-all-in-one-update-script)
 [![GitHub pull-requests](https://img.shields.io/github/issues-pr/gvatsal60/Linux-All-In-One-Update-Script.svg)](https://GitHub.com/gvatsal60/Linux-All-In-One-Update-Script/pull/)
 [![GitHub issues](https://img.shields.io/github/issues/gvatsal60/Linux-All-In-One-Update-Script.svg)](https://GitHub.com/gvatsal60/Linux-All-In-One-Update-Script/issues/)
 [![GitHub forks](https://img.shields.io/github/forks/gvatsal60/Linux-All-In-One-Update-Script.svg)](https://GitHub.com/gvatsal60/Linux-All-In-One-Update-Script/network/)
 [![GitHub stars](https://img.shields.io/github/stars/gvatsal60/Linux-All-In-One-Update-Script.svg)](https://GitHub.com/gvatsal60/Linux-All-In-One-Update-Script/stargazers)
 
-This repository contains a versatile shell script designed to streamline the update process for various components of a Linux system. Whether you're a seasoned Linux user or just getting started, this script aims to simplify the often tedious task of updating your system by combining multiple update commands into one convenient script.
+This repository contains a versatile shell script designed to streamline the
+update process for various components of a Linux system. Whether you're a
+seasoned Linux user or just getting started, this script aims to simplify the
+often tedious task of updating your system by combining multiple update commands
+into one convenient script.
 
 > Inspired from the repo [MacOS-All-In-One-Update-Script](https://github.com/andmpel/MacOS-All-In-One-Update-Script/).
 
 ## Features
 
-- **Comprehensive Updates**: Update all system packages, including installed applications, libraries, and system components, with a single command.
-- **Package Manager Agnostic**: Compatible with popular package managers like APT (Debian/Ubuntu), DNF (Fedora/RHEL), Apk (Alpine), Pacman (Arch), and more, ensuring flexibility across different Linux distributions.
-- **Customization**: Easily configurable options allow users to tailor the script to their preferences and specific system requirements.
+- **Comprehensive Updates**: Update all system packages, including installed
+  applications, libraries, and system components, with a single command.
+- **Package Manager Agnostic**: Compatible with popular package managers like
+  APT (Debian/Ubuntu), DNF (Fedora/RHEL), Apk (Alpine), Pacman (Arch), and more,
+  ensuring flexibility across different Linux distributions.
+- **Customization**: Easily configurable options allow users to tailor the
+  script to their preferences and specific system requirements.
 
 ## Usage
 
@@ -45,7 +52,8 @@ curl -fsSL https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-S
    wget -O "$HOME/.update.sh" https://raw.githubusercontent.com/gvatsal60/Linux-All-In-One-Update-Script/HEAD/.update.sh
    ```
 
-2. **Make it Executable**: Ensure the script has executable permissions. If necessary, grant execution permissions using the following command:
+2. **Make it Executable**: Ensure the script has executable permissions. If
+   necessary, grant execution permissions using the following command:
 
    ```sh
    chmod +x "$HOME/.update.sh"
@@ -69,7 +77,9 @@ Depending on your operating system, you might need to source your shell configur
   update
   ```
 
-Once you've completed these steps, you'll have access to a streamlined update process for your Linux system. Enjoy the convenience of keeping your system up-to-date with ease! 🐧✨
+Once you've completed these steps, you'll have access to a streamlined update
+process for your Linux system. Enjoy the convenience of keeping your system
+up-to-date with ease! 🐧✨
 
 ### Configuration
 
@@ -79,15 +89,22 @@ Once you've completed these steps, you'll have access to a streamlined update pr
 
 ### Contributions
 
-Contributions to this project are welcome! Whether you're suggesting new features, reporting bugs, or submitting pull requests, your input is valuable in improving this script for the Linux community.
+Contributions to this project are welcome! Whether you're suggesting new
+features, reporting bugs, or submitting pull requests, your input is valuable in
+improving this script for the Linux community.
 
 ### Disclaimer
 
-While this script aims to simplify the update process and enhance system security, it is provided as-is, without any warranties. Use it at your own risk, and always review the script contents before execution to ensure it meets your requirements and does not pose any security risks.
+While this script aims to simplify the update process and enhance system
+security, it is provided as-is, without any warranties. Use it at your own risk,
+and always review the script contents before execution to ensure it meets your
+requirements and does not pose any security risks.
 
 ### License
 
-This script is licensed under the [Apache License 2.0](https://github.com/gvatsal60/Linux-All-In-One-Update-Script/blob/HEAD/LICENSE), granting you the freedom to use, modify, and distribute it as you see fit.
+This script is licensed under the
+[Apache License 2.0](https://github.com/gvatsal60/Linux-All-In-One-Update-Script/blob/HEAD/LICENSE),
+granting you the freedom to use, modify, and distribute it as you see fit.
 
 ### Support
 
@@ -99,7 +116,9 @@ Special thanks to the open-source community for their contributions, feedback, a
 
 ---
 
-Feel free to use, modify, and distribute this script to streamline the update process on your Linux system. If you have any questions or suggestions, don't hesitate to reach out or submit a pull request. Happy updating! 🐧🚀
+Feel free to use, modify, and distribute this script to streamline the update
+process on your Linux system. If you have any questions or suggestions, don't
+hesitate to reach out or submit a pull request. Happy updating! 🐧🚀
 
 ## Updates
 
