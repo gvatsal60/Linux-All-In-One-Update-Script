@@ -3,10 +3,9 @@
     "vscode": {
       "extensions": [
         "DavidAnson.vscode-markdownlint",
-        "Gruntfuggly.todo-tree",
+        "EditorConfig.EditorConfig",
         "PKief.material-icon-theme",
         "Tyriar.sort-lines",
-        "bradzacher.vscode-copy-filename",
         "esbenp.prettier-vscode",
         "foxundermoon.shell-format",
         "gurumukhi.selected-lines-count",
@@ -24,9 +23,7 @@
           ]
         },
         "[shellscript]": {
-          "editor.defaultFormatter": "foxundermoon.shell-format",
-          "editor.tabSize": 4,
-          "files.eol": "\n"
+          "editor.defaultFormatter": "foxundermoon.shell-format"
         },
         "editor.bracketPairColorization.enabled": true,
         "editor.comments.insertSpace": true,
