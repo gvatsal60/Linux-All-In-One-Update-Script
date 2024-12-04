@@ -39,6 +39,19 @@ print_err() {
     printf "\n${RED}%s${CLEAR}\n" "$*" >&2
 }
 
+# Function: check_cmd
+# Description: Checks if a specified command is available in the system.
+# Usage: check_cmd "command_name"
+check_cmd() {
+    command_name="$1"
+
+    if ! command -v "${command_name}" >/dev/null 2>&1; then
+        return 1
+    fi
+
+    return 0
+}
+
 # Function: check_command
 # Description: Checks if a specified command is available in the system.
 #              Prints a message indicating whether the command is installed.
@@ -87,7 +100,7 @@ clean_up() {
 os_pkg_update() {
     case ${ADJUSTED_ID} in
     debian)
-        if [ "$(find /var/lib/apt/lists/* -maxdepth 1 -type f 2>/dev/null | wc -l)" -eq 0 ]; then
+        if [ "$(find /var/lib/apt/lists/* -maxdepth 1 -check_cmd f 2>/dev/null | wc -l)" -eq 0 ]; then
             println "Updating ${PKG_MGR_CMD} based packages..."
             if ! (${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} upgrade -y && ${PKG_MGR_CMD} autoremove -y && ${PKG_MGR_CMD} dist-upgrade -y); then
                 print_err "Error: Update failed."
@@ -290,9 +303,8 @@ check_internet() {
 
 # Text Color Variables
 # Check if the 'tput' command is available
-# - '/dev/null 2>&1' redirects standard output (stdout) and standard error (stderr) to /dev/null, suppressing output.
 # - If 'tput' is found, it likely indicates that color support is available.
-if check_command tput; then
+if check_cmd tput; then
     RED=$(tput setaf 1)   # Set text color to red
     GREEN=$(tput setaf 2) # Set text color to green
     CLEAR=$(tput sgr0)    # Reset text formatting
@@ -351,22 +363,22 @@ if [ "${ADJUSTED_ID}" = "rhel" ] && [ "${VERSION_CODENAME-}" = "centos7" ]; then
 fi
 
 # Setup INSTALL_CMD & PKG_MGR_CMD
-if type apt-get >/dev/null 2>&1; then
+if check_cmd apt-get; then
     PKG_MGR_CMD=apt-get
     INSTALL_CMD="${PKG_MGR_CMD} -y install --no-install-recommends"
-elif type apk >/dev/null 2>&1; then
+elif check_cmd apk; then
     PKG_MGR_CMD=apk
     INSTALL_CMD="${PKG_MGR_CMD} add --no-cache"
-elif type pacman >/dev/null 2>&1; then
+elif check_cmd pacman; then
     PKG_MGR_CMD=pacman
     INSTALL_CMD="${PKG_MGR_CMD} -S --noconfirm --needed"
-elif type microdnf >/dev/null 2>&1; then
+elif check_cmd microdnf; then
     PKG_MGR_CMD=microdnf
     INSTALL_CMD="${PKG_MGR_CMD} -y install --refresh --best --nodocs --noplugins --setopt=install_weak_deps=0"
-elif type dnf >/dev/null 2>&1; then
+elif check_cmd dnf; then
     PKG_MGR_CMD=dnf
     INSTALL_CMD="${PKG_MGR_CMD} -y install"
-elif type yum >/dev/null 2>&1; then
+elif check_cmd yum; then
     PKG_MGR_CMD=yum
     INSTALL_CMD="${PKG_MGR_CMD} -y install"
 else

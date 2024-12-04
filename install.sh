@@ -75,6 +75,19 @@ print_err() {
     printf "%s\n" "$*" >&2
 }
 
+# Function: check_cmd
+# Description: Checks if a specified command is available in the system.
+# Usage: check_cmd "command_name"
+check_cmd() {
+    command_name="$1"
+
+    if ! command -v "${command_name}" >/dev/null 2>&1; then
+        return 1
+    fi
+
+    return 0
+}
+
 # Function: check_command
 # Description: Checks if a specified command is available in the system.
 #              Prints a message indicating whether the command is installed.
@@ -96,24 +109,24 @@ check_command() {
 install_pkg() {
     pkg_name="$1"
 
-    if ! check_command "${pkg_name}"; then
+    if ! check_cmd "${pkg_name}"; then
         # Setup INSTALL_CMD & PKG_MGR_CMD
-        if type apt-get >/dev/null 2>&1; then
+        if check_cmd apt-get; then
             PKG_MGR_CMD=apt-get
             INSTALL_CMD="${PKG_MGR_CMD} -y install --no-install-recommends"
-        elif type apk >/dev/null 2>&1; then
+        elif check_cmd apk; then
             PKG_MGR_CMD=apk
             INSTALL_CMD="${PKG_MGR_CMD} add --no-cache"
-        elif type pacman >/dev/null 2>&1; then
+        elif check_cmd pacman; then
             PKG_MGR_CMD=pacman
             INSTALL_CMD="${PKG_MGR_CMD} -S --noconfirm --needed"
-        elif type microdnf >/dev/null 2>&1; then
+        elif check_cmd microdnf; then
             PKG_MGR_CMD=microdnf
             INSTALL_CMD="${PKG_MGR_CMD} -y install --refresh --best --nodocs --noplugins --setopt=install_weak_deps=0"
-        elif type dnf >/dev/null 2>&1; then
+        elif check_cmd dnf; then
             PKG_MGR_CMD=dnf
             INSTALL_CMD="${PKG_MGR_CMD} -y install"
-        elif type yum >/dev/null 2>&1; then
+        elif check_cmd yum; then
             PKG_MGR_CMD=yum
             INSTALL_CMD="${PKG_MGR_CMD} -y install"
         else
