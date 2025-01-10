@@ -394,6 +394,6 @@ if check_internet; then
     update_gem
     update_npm
     update_yarn
-    update_pip3
+    # update_pip3
     update_cargo
 fi
