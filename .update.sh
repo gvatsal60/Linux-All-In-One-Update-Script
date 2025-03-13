@@ -387,7 +387,7 @@ else
 fi
 
 if check_internet; then
-    clean_up
+    # clean_up
     os_pkg_update
     update_brew
     update_vscode_ext
