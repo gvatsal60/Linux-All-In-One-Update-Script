@@ -67,6 +67,33 @@ check_command() {
     return 0
 }
 
+# Function: cleanup_snapd
+# Description: Performs cleanup tasks for Snap packages by removing old revisions,
+#              purging unused dependencies, and freeing up disk space.
+#              Provides feedback on the cleanup process and handles errors gracefully.
+# Usage: Call this function to automate Snap-related cleanup tasks.
+cleanup_snapd() {
+    if ! check_command snap; then
+        return
+    fi
+
+    rm -rf /var/lib/snapd/cache/*
+
+    # List all snaps and filter for disabled ones
+    snap list --all | awk '/disabled/{print $1, $3}' | while read -r snapname revision; do
+        # Check if variables are set and not empty
+        if [ -z "$snapname" ] || [ -z "$revision" ]; then
+            print_err "Error: Snap name or revision is empty. Skipping..."
+            continue
+        fi
+
+        # Attempt to remove the snap revision
+        if ! snap remove "$snapname" --revision="$revision"; then
+            print_err "Error: Failed to remove $snapname (revision $revision)."
+        fi
+    done
+}
+
 # Function: clean_up
 # Description: Performs system cleanup tasks based on the detected Linux distribution.
 #              Executes commands to clean package cache and remove unnecessary packages.
@@ -75,17 +102,18 @@ check_command() {
 clean_up() {
     case ${ADJUSTED_ID} in
     debian)
-        rm -rf /var/lib/apt/lists/*
+        # rm -rf /var/lib/apt/lists/*
+        cleanup_snapd
         ;;
     rhel)
-        rm -rf /var/cache/dnf/* /var/cache/yum/*
+        # rm -rf /var/cache/dnf/* /var/cache/yum/*
         rm -rf /tmp/yum.log
         ;;
     alpine)
-        rm -rf /var/cache/apk/*
+        # rm -rf /var/cache/apk/*
         ;;
     arch)
-        rm -rf /var/cache/pacman/pkg/*
+        # rm -rf /var/cache/pacman/pkg/*
         ;;
     *)
         print_err "Error: Clean up not implemented for Linux distro: ${ADJUSTED_ID}"
@@ -394,7 +422,7 @@ else
 fi
 
 if check_internet; then
-    # clean_up
+    clean_up
     os_pkg_update
     update_brew
     update_vscode_ext
