@@ -2,7 +2,7 @@
 
 ###################################################################################################
 # File: .update.sh
-# Author: [Vatsal Gupta (gvatsal60)]
+# Author: Vatsal Gupta(@gvatsal60)
 # Date: 11-Jul-2024
 # Description: This script provides functions to update Linux distributions using their
 #              respective package managers.
@@ -102,7 +102,11 @@ os_pkg_update() {
     debian)
         if [ "$(find /var/lib/apt/lists/* -maxdepth 1 -check_cmd f 2>/dev/null | wc -l)" -eq 0 ]; then
             println "Updating ${PKG_MGR_CMD} based packages..."
-            if ! (${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} upgrade -y && ${PKG_MGR_CMD} autoremove -y && ${PKG_MGR_CMD} dist-upgrade -y); then
+            if ! (${PKG_MGR_CMD} update -y &&
+                ${PKG_MGR_CMD} upgrade -y &&
+                ${PKG_MGR_CMD} dist-upgrade -y &&
+                ${PKG_MGR_CMD} autoremove -y &&
+                ${PKG_MGR_CMD} autoclean -y); then
                 print_err "Error: Update failed."
             fi
         fi
@@ -127,7 +131,9 @@ os_pkg_update() {
         fi
 
         println "Updating ${PKG_MGR_CMD} based packages..."
-        if ! (${PKG_MGR_CMD} update -y && ${PKG_MGR_CMD} upgrade -y && ${PKG_MGR_CMD} autoremove -y); then
+        if ! (${PKG_MGR_CMD} update -y &&
+            ${PKG_MGR_CMD} upgrade -y &&
+            ${PKG_MGR_CMD} autoremove -y); then
             print_err "Error: Update failed."
         fi
         ;;
@@ -142,7 +148,8 @@ os_pkg_update() {
     arch)
         if [ "$(find /var/cache/pacman/pkg/* 2>/dev/null | wc -l)" -eq 0 ]; then
             println "Updating ${PKG_MGR_CMD} based packages..."
-            if ! (${PKG_MGR_CMD} -Syu --noconfirm && ${PKG_MGR_CMD} -Rns "$(${PKG_MGR_CMD} -Qdtq)"); then
+            if ! (${PKG_MGR_CMD} -Syu --noconfirm &&
+                ${PKG_MGR_CMD} -Rns "$(${PKG_MGR_CMD} -Qdtq)"); then
                 print_err "Error: Update failed."
             fi
         fi
