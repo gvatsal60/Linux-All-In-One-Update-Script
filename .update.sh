@@ -121,11 +121,23 @@ clean_up() {
     esac
 }
 
-# Function: os_pkg_update
+# Function: update_snapd
+# Description: Updates Snap packages if the `snap` command is installed.
+update_snapd() {
+    if ! check_command snap; then
+        return
+    fi
+
+    if ! snap refresh; then
+        print_err "Error: Failed to refresh Snap packages."
+    fi
+}
+
+# Function: update_os_pkg
 # Description: Updates the system package cache and performs necessary updates based on the detected Linux distribution.
 #              Supports Debian-based (apt-get), RPM-based (dnf/yum/microdnf), and Alpine (apk) package managers.
 #              Prints messages indicating the update process and handles errors gracefully.
-os_pkg_update() {
+update_os_pkg() {
     case ${ADJUSTED_ID} in
     debian)
         if [ "$(find /var/lib/apt/lists/* -maxdepth 1 -check_cmd f 2>/dev/null | wc -l)" -eq 0 ]; then
@@ -138,6 +150,8 @@ os_pkg_update() {
                 print_err "Error: Update failed."
             fi
         fi
+
+        update_snapd
         ;;
     rhel)
         if [ "${PKG_MGR_CMD}" = "microdnf" ]; then
@@ -203,18 +217,6 @@ update_brew() {
     brew doctor && brew missing
 }
 
-# Function: update_vscode_ext
-# Description: Updates Visual Studio Code extensions if VSCode is installed.
-update_vscode_ext() {
-    println "Updating VSCode Extensions"
-
-    if ! check_command code; then
-        return
-    fi
-
-    code --update-extensions
-}
-
 # Function: update_gem
 # Description: Updates RubyGems if the 'gem' command is installed.
 update_gem() {
@@ -249,19 +251,6 @@ update_yarn() {
     fi
 
     yarn upgrade --latest
-}
-
-# Function: update_pip3
-# Description: Updates pip packages if the 'pip3' command is installed.
-update_pip3() {
-    println "Updating Python 3.x pips"
-
-    if ! check_command python3 || ! check_command pip3; then
-        return
-    fi
-
-    # The `--break-system-packages` option is included to bypass the "externally-managed-environment" error
-    python3 -m pip list --outdated --format=columns | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 python3 -m pip install -U --break-system-packages
 }
 
 # Function: update_cargo
@@ -423,12 +412,10 @@ fi
 
 if check_internet; then
     clean_up
-    os_pkg_update
+    update_os_pkg
     update_brew
-    update_vscode_ext
     update_gem
     update_npm
     update_yarn
-    # update_pip3
     update_cargo
 fi
