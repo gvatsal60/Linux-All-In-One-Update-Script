@@ -21,6 +21,8 @@ export DEBIAN_FRONTEND=noninteractive
 
 ADJUSTED_ID="None"
 
+NON_ROOT_USER=$(logname 2>/dev/null || echo "nobody")
+
 ###################################################################################################
 # Functions
 ###################################################################################################
@@ -217,6 +219,24 @@ update_brew() {
     brew doctor && brew missing
 }
 
+# Function: update_vscode_ext
+# Description: Updates Visual Studio Code extensions if `VSCode` is installed.
+update_vscode_ext() {
+    println "Updating VSCode Extensions"
+
+    if ! check_command code; then
+        return
+    fi
+
+    # Ensure `NON_ROOT_USER` is defined and valid
+    if [ -z "${NON_ROOT_USER}" ] || ! id "${NON_ROOT_USER}" >/dev/null 2>&1; then
+        print_err "Error: Non-root user '${NON_ROOT_USER}' is invalid or not found."
+        return
+    fi
+
+    su - "${NON_ROOT_USER}" -c "code --update-extensions"
+}
+
 # Function: update_gem
 # Description: Updates RubyGems if the 'gem' command is installed.
 update_gem() {
@@ -348,7 +368,7 @@ fi
 
 # Check if the script is running as root
 if [ "$(id -u)" -ne 0 ]; then
-    print_err "Error: Script must be run as root. Use sudo, su, or add "USER root" to your Dockerfile before running this script.."
+    print_err "Error: Script must be run as root. Use sudo, su, or add "USER root" to your Dockerfile before running this script..."
     exit 1
 fi
 
@@ -414,6 +434,7 @@ if check_internet; then
     clean_up
     update_os_pkg
     update_brew
+    update_vscode_ext
     update_gem
     update_npm
     update_yarn
