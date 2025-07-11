@@ -273,6 +273,18 @@ update_yarn() {
     yarn upgrade --latest
 }
 
+# Function: update_node_pkgs
+# Description: Updates Node.js packages if the 'node' command is installed.
+update_node_pkgs() {
+    println "Updating Node Packages"
+    if ! check_command node; then
+        return
+    fi
+
+    update_npm
+    update_yarn
+}
+
 # Function: update_cargo
 # Description: Updates cargo packages if the 'cargo' command is installed.
 update_cargo() {
@@ -436,7 +448,6 @@ if check_internet; then
     update_brew
     update_vscode_ext
     update_gem
-    update_npm
-    update_yarn
+    update_node_pkgs
     update_cargo
 fi
