@@ -81,17 +81,25 @@ cleanup_snapd() {
 
     rm -rf /var/lib/snapd/cache/*
 
-    # List all snaps and filter for disabled ones
-    snap list --all | awk '/disabled/{print $1, $3}' | while read -r snapname revision; do
+    # Get snap list output once and store it
+    snap_output=$(snap list --all 2>/dev/null)
+
+    # Check if no snaps are installed
+    if [ -z "${snap_output}" ] || echo "${snap_output}" | grep -q "No snaps are installed"; then
+        return
+    fi
+
+    # Process the stored output to find disabled snaps
+    echo "${snap_output}" | awk '/disabled/{print $1, $3}' | while read -r snap_name revision; do
         # Check if variables are set and not empty
-        if [ -z "$snapname" ] || [ -z "$revision" ]; then
+        if [ -z "${snap_name}" ] || [ -z "${revision}" ]; then
             print_err "Error: Snap name or revision is empty. Skipping..."
             continue
         fi
 
         # Attempt to remove the snap revision
-        if ! snap remove "$snapname" --revision="$revision"; then
-            print_err "Error: Failed to remove $snapname (revision $revision)."
+        if ! snap remove "${snap_name}" --revision="${revision}"; then
+            print_err "Error: Failed to remove ${snap_name} (revision ${revision})."
         fi
     done
 }
