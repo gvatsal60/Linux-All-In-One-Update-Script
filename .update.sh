@@ -82,7 +82,10 @@ cleanup_snapd() {
     rm -rf /var/lib/snapd/cache/*
 
     # Get snap list output once and store it
-    snap_output=$(snap list --all 2>/dev/null)
+    if ! snap_output=$(snap list --all); then
+        print_err "Error: Failed to retrieve snap list."
+        return
+    fi
 
     # Check if no snaps are installed
     if [ -z "${snap_output}" ] || echo "${snap_output}" | grep -q "No snaps are installed"; then
