@@ -113,7 +113,7 @@ cleanup_snapd() {
 #              Provides output to indicate the cleanup process and handles errors gracefully.
 # Usage: Call this function to automate system cleanup tasks after updating the system.
 clean_up() {
-    case ${ADJUSTED_ID} in
+    case "${ADJUSTED_ID}" in
     debian)
         # rm -rf /var/lib/apt/lists/*
         cleanup_snapd
@@ -151,7 +151,7 @@ update_snapd() {
 #              Supports Debian-based (apt-get), RPM-based (dnf/yum/microdnf), and Alpine (apk) package managers.
 #              Prints messages indicating the update process and handles errors gracefully.
 update_os_pkg() {
-    case ${ADJUSTED_ID} in
+    case "${ADJUSTED_ID}" in
     debian)
         if [ "$(find /var/lib/apt/lists/* -maxdepth 1 -check_cmd f 2>/dev/null | wc -l)" -eq 0 ]; then
             println "Updating ${PKG_MGR_CMD} based packages..."
@@ -315,7 +315,7 @@ install_pkg() {
     pkg_name="$1"
 
     if ! check_command "${pkg_name}"; then
-        case ${ADJUSTED_ID} in
+        case "${ADJUSTED_ID}" in
         debian)
             "${PKG_MGR_CMD}" update && "${INSTALL_CMD}" "${pkg_name}"
             ;;
