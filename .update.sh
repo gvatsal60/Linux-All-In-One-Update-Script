@@ -87,8 +87,8 @@ cleanup_snapd() {
         return
     fi
 
-    # Check if no snaps are installed
-    if echo "${snap_output}" | grep -q "No snaps are installed"; then
+    # Check if no snaps are installed (only header line present)
+    if [ "$(echo "${snap_output}" | wc -l)" -le 1 ]; then
         return
     fi
 
