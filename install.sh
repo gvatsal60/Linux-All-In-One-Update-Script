@@ -51,7 +51,7 @@ update() {
         return
     fi
 
-    curl -fsSL ${UPDATE_SCRIPT_SOURCE_URL} | sudo \${SHELL}
+    curl -fsSL "${UPDATE_SCRIPT_SOURCE_URL}" | sudo \${SHELL}
 }
 
 EOF
@@ -134,18 +134,18 @@ install_pkg() {
             exit 1
         fi
 
-        case ${ADJUSTED_ID} in
+        case "${ADJUSTED_ID}" in
         debian)
-            ${PKG_MGR_CMD} update && ${INSTALL_CMD} "${pkg_name}"
+            "${PKG_MGR_CMD}" update && "${INSTALL_CMD}" "${pkg_name}"
             ;;
         rhel)
-            ${PKG_MGR_CMD} update && ${INSTALL_CMD} "${pkg_name}"
+            "${PKG_MGR_CMD}" update && "${INSTALL_CMD}" "${pkg_name}"
             ;;
         alpine)
-            ${PKG_MGR_CMD} update && ${INSTALL_CMD} "${pkg_name}"
+            "${PKG_MGR_CMD}" update && "${INSTALL_CMD}" "${pkg_name}"
             ;;
         arch)
-            ${INSTALL_CMD} "${pkg_name}"
+            "${INSTALL_CMD}" "${pkg_name}"
             ;;
         *)
             print_err "Error: Unable to install ${pkg_name} for distro ${ID}"
@@ -158,7 +158,7 @@ install_pkg() {
 # Description: Update shell configuration files
 update_rc() {
     _rc=""
-    case ${ADJUSTED_ID} in
+    case "${ADJUSTED_ID}" in
     debian | rhel)
         _rc="${HOME}/.bashrc"
         ;;
@@ -200,7 +200,7 @@ update_rc() {
 
 OS=$(uname)
 
-case ${OS} in
+case "${OS}" in
 Linux)
     # Bring in ID, ID_LIKE, VERSION_ID, VERSION_CODENAME
     # shellcheck source=/dev/null
