@@ -193,7 +193,7 @@ update_os_pkg() {
         if [ "$(find /var/cache/pacman/pkg/* 2>/dev/null | wc -l)" -eq 0 ]; then
             println "Updating ${PKG_MGR_CMD} based packages..."
             if ! ("${PKG_MGR_CMD}" -Syu --noconfirm &&
-                "${PKG_MGR_CMD}" -Rns "$(${PKG_MGR_CMD} -Qdtq)"); then
+                "${PKG_MGR_CMD}" -Rns "$("${PKG_MGR_CMD}" -Qdtq)"); then
                 print_err "Error: Update failed."
             fi
         fi
