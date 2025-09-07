@@ -144,11 +144,11 @@ update_os_pkg() {
     debian)
         if [ "$(find /var/lib/apt/lists/* -maxdepth 1 -check_cmd f 2>/dev/null | wc -l)" -eq 0 ]; then
             println "Updating ${PKG_MGR_CMD} based packages..."
-            if ! (${PKG_MGR_CMD} update -y &&
-                ${PKG_MGR_CMD} upgrade -y &&
-                ${PKG_MGR_CMD} dist-upgrade -y &&
-                ${PKG_MGR_CMD} autoremove -y &&
-                ${PKG_MGR_CMD} autoclean -y); then
+            if ! ("${PKG_MGR_CMD}" update -y &&
+                "${PKG_MGR_CMD}" upgrade -y &&
+                "${PKG_MGR_CMD}" dist-upgrade -y &&
+                "${PKG_MGR_CMD}" autoremove -y &&
+                "${PKG_MGR_CMD}" autoclean -y); then
                 print_err "Error: Update failed."
             fi
         fi
@@ -159,13 +159,13 @@ update_os_pkg() {
         if [ "${PKG_MGR_CMD}" = "microdnf" ]; then
             if [ "$(find /var/cache/yum/* -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null | wc -l)" -eq 0 ]; then
                 println "Running ${PKG_MGR_CMD} makecache..."
-                ${PKG_MGR_CMD} makecache
+                "${PKG_MGR_CMD}" makecache
             fi
         else
             if [ "$(find "/var/cache/${PKG_MGR_CMD}"/* -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null | wc -l)" -eq 0 ]; then
                 println "Running ${PKG_MGR_CMD} check-update..."
                 set +e
-                ${PKG_MGR_CMD} check-update
+                "${PKG_MGR_CMD}" check-update
                 rc=$?
                 if [ $rc -ne 0 ] && [ $rc -ne 100 ]; then
                     exit 1
@@ -175,16 +175,16 @@ update_os_pkg() {
         fi
 
         println "Updating ${PKG_MGR_CMD} based packages..."
-        if ! (${PKG_MGR_CMD} update -y &&
-            ${PKG_MGR_CMD} upgrade -y &&
-            ${PKG_MGR_CMD} autoremove -y); then
+        if ! ("${PKG_MGR_CMD}" update -y &&
+            "${PKG_MGR_CMD}" upgrade -y &&
+            "${PKG_MGR_CMD}" autoremove -y); then
             print_err "Error: Update failed."
         fi
         ;;
     alpine)
         if [ "$(find /var/cache/apk/* 2>/dev/null | wc -l)" -eq 0 ]; then
             println "Updating ${PKG_MGR_CMD} based packages..."
-            if ! (${PKG_MGR_CMD} update && ${PKG_MGR_CMD} upgrade); then
+            if ! ("${PKG_MGR_CMD}" update && "${PKG_MGR_CMD}" upgrade); then
                 print_err "Error: Update failed."
             fi
         fi
@@ -192,8 +192,8 @@ update_os_pkg() {
     arch)
         if [ "$(find /var/cache/pacman/pkg/* 2>/dev/null | wc -l)" -eq 0 ]; then
             println "Updating ${PKG_MGR_CMD} based packages..."
-            if ! (${PKG_MGR_CMD} -Syu --noconfirm &&
-                ${PKG_MGR_CMD} -Rns "$(${PKG_MGR_CMD} -Qdtq)"); then
+            if ! ("${PKG_MGR_CMD}" -Syu --noconfirm &&
+                "${PKG_MGR_CMD}" -Rns "$("${PKG_MGR_CMD}" -Qdtq)"); then
                 print_err "Error: Update failed."
             fi
         fi
@@ -306,16 +306,16 @@ install_pkg() {
     if ! check_command "${pkg_name}"; then
         case ${ADJUSTED_ID} in
         debian)
-            ${PKG_MGR_CMD} update && ${INSTALL_CMD} "${pkg_name}"
+            "${PKG_MGR_CMD}" update && "${INSTALL_CMD}" "${pkg_name}"
             ;;
         rhel)
-            ${PKG_MGR_CMD} update && ${INSTALL_CMD} "${pkg_name}"
+            "${PKG_MGR_CMD}" update && "${INSTALL_CMD}" "${pkg_name}"
             ;;
         alpine)
-            ${PKG_MGR_CMD} update && ${INSTALL_CMD} "${pkg_name}"
+            "${PKG_MGR_CMD}" update && "${INSTALL_CMD}" "${pkg_name}"
             ;;
         arch)
-            ${INSTALL_CMD} "${pkg_name}"
+            "${INSTALL_CMD}" "${pkg_name}"
             ;;
         *)
             print_err "Error: Unable to install ${pkg_name} for distro ${ID}"
