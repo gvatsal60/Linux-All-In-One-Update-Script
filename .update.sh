@@ -81,19 +81,8 @@ cleanup_snapd() {
 
     rm -rf /var/lib/snapd/cache/*
 
-    # Get snap list output once and store it
-    if ! snap_output=$(snap list --all); then
-        print_err "Error: Failed to retrieve snap list."
-        return
-    fi
-
-    # Check if no snaps are installed (only header line present)
-    if [ "$(echo "${snap_output}" | wc -l)" -le 1 ]; then
-        return
-    fi
-
-    # Process the stored output to find disabled snaps
-    echo "${snap_output}" | awk '/disabled/{print $1, $3}' | while read -r snap_name revision; do
+    # List all snaps and filter for disabled ones
+    snap list --all | awk '/disabled/{print $1, $3}' | while read -r snap_name revision; do
         # Check if variables are set and not empty
         if [ -z "${snap_name}" ] || [ -z "${revision}" ]; then
             print_err "Error: Snap name or revision is empty. Skipping..."
@@ -153,7 +142,7 @@ update_snapd() {
 update_os_pkg() {
     case "${ADJUSTED_ID}" in
     debian)
-        if [ "$(find /var/lib/apt/lists/ -mindepth 1 -maxdepth 1 -type f 2>/dev/null | wc -l)" -eq 0 ]; then
+        if [ "$(find /var/lib/apt/lists/* -mindepth 1 -maxdepth 1 -type f 2>/dev/null | wc -l)" -eq 0 ]; then
             println "Updating ${PKG_MGR_CMD} based packages..."
             if ! ("${PKG_MGR_CMD}" update -y &&
                 "${PKG_MGR_CMD}" upgrade -y &&
