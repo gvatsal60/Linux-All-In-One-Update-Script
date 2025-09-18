@@ -142,7 +142,7 @@ update_snapd() {
 update_os_pkg() {
     case "${ADJUSTED_ID}" in
     debian)
-        if [ "$(find /var/lib/apt/lists/* -mindepth 1 -maxdepth 1 -type f 2>/dev/null | wc -l)" -eq 0 ]; then
+        if [ "$(find /var/lib/apt/lists/ -maxdepth 1 -type f 2>/dev/null | wc -l)" -eq 0 ]; then
             println "Updating ${PKG_MGR_CMD} based packages..."
             if ! ("${PKG_MGR_CMD}" update -y &&
                 "${PKG_MGR_CMD}" upgrade -y &&
