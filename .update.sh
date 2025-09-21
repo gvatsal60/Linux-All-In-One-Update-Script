@@ -198,7 +198,7 @@ update_os_pkg() {
         ORPHANS=$("${PKG_MGR_CMD}" -Qdtq)
         rc=$?
         if [ $rc -eq 0 ] && [ -n "${ORPHANS}" ]; then
-            if ! ("${PKG_MGR_CMD}" -Rns ${ORPHANS}); then
+            if ! ("${PKG_MGR_CMD}" -Rns "${ORPHANS}"); then
                 print_err "Error: Failed to remove orphaned packages."
             fi
         elif [ $rc -ne 1 ]; then
