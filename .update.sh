@@ -82,7 +82,7 @@ cleanup_snapd() {
     # Robustly clean Snap cache if the directory exists and is not empty
     SNAP_CACHE_DIR="/var/lib/snapd/cache"
     if [ -d "${SNAP_CACHE_DIR}" ]; then
-        if rm -rf "${SNAP_CACHE_DIR}/"*; then
+        if rm -rf "${SNAP_CACHE_DIR:?}/"*; then
             println "Snap cache cleaned from ${SNAP_CACHE_DIR}"
         else
             print_err "Error: Failed to clean Snap cache at ${SNAP_CACHE_DIR}"
@@ -196,8 +196,8 @@ update_os_pkg() {
         fi
         # Remove orphaned packages if any exist
         ORPHANS=$("${PKG_MGR_CMD}" -Qdtq)
-        if [ -n "$ORPHANS" ]; then
-            if ! ("${PKG_MGR_CMD}" -Rns $ORPHANS); then
+        if [ -n "${ORPHANS}" ]; then
+            if ! ("${PKG_MGR_CMD}" -Rns "${ORPHANS}"); then
                 print_err "Error: Failed to remove orphaned packages."
             fi
         fi
