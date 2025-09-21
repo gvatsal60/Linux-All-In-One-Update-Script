@@ -195,9 +195,8 @@ update_os_pkg() {
             print_err "Error: Update failed."
         fi
         # Remove orphaned packages if any exist
-        ORPHANS=$("${PKG_MGR_CMD}" -Qdtq || true)
-        if [ -n "${ORPHANS}" ]; then
-            if ! ("${PKG_MGR_CMD}" -Rns "${ORPHANS}"); then
+        if [ -n "$("${PKG_MGR_CMD}" -Qdtq)" ]; then
+            if ! ("${PKG_MGR_CMD}" -Rns $("${PKG_MGR_CMD}" -Qdtq)); then
                 print_err "Error: Failed to remove orphaned packages."
             fi
         fi
