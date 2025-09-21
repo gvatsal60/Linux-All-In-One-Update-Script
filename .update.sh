@@ -170,7 +170,9 @@ update_os_pkg() {
                 print_err "Error: Update failed."
             fi
         else
-            if ! ("${PKG_MGR_CMD}" check-update); then
+            "${PKG_MGR_CMD}" check-update
+            rc=$?
+            if [ $rc -ne 0 ] && [ $rc -ne 100 ]; then
                 print_err "Error: Update failed."
             fi
         fi
