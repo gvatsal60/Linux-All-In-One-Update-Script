@@ -191,9 +191,15 @@ update_os_pkg() {
         ;;
     arch)
         println "Updating ${PKG_MGR_CMD} based packages..."
-        if ! ("${PKG_MGR_CMD}" -Syu --noconfirm &&
-            "${PKG_MGR_CMD}" -Rns "$("${PKG_MGR_CMD}" -Qdtq)"); then
+        if ! ("${PKG_MGR_CMD}" -Syu --noconfirm); then
             print_err "Error: Update failed."
+        fi
+        # Remove orphaned packages if any exist
+        ORPHANS=$("${PKG_MGR_CMD}" -Qdtq)
+        if [ -n "$ORPHANS" ]; then
+            if ! ("${PKG_MGR_CMD}" -Rns $ORPHANS); then
+                print_err "Error: Failed to remove orphaned packages."
+            fi
         fi
         ;;
     *)
