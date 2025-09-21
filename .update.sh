@@ -172,7 +172,7 @@ update_os_pkg() {
         else
             "${PKG_MGR_CMD}" check-update
             rc=$?
-            if [ $rc -ne 0 ] && [ $rc -ne 100 ]; then
+            if [ "${rc}" -ne 0 ] && [ "${rc}" -ne 100 ]; then
                 print_err "Error: Update failed."
             fi
         fi
@@ -197,12 +197,12 @@ update_os_pkg() {
         # Remove orphaned packages if any exist
         ORPHANS=$("${PKG_MGR_CMD}" -Qdtq)
         rc=$?
-        if [ $rc -eq 0 ] && [ -n "${ORPHANS}" ]; then
+        if [ "${rc}" -eq 0 ] && [ -n "${ORPHANS}" ]; then
             if ! ("${PKG_MGR_CMD}" -Rns "${ORPHANS}"); then
                 print_err "Error: Failed to remove orphaned packages."
             fi
-        elif [ $rc -ne 1 ]; then
-            print_err "Error: Failed to detect orphaned packages (exit code $rc)."
+        elif [ "${rc}" -ne 1 ]; then
+            print_err "Error: Failed to detect orphaned packages (exit code ${rc})."
         fi
         ;;
     *)
