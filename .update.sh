@@ -79,7 +79,17 @@ cleanup_snapd() {
         return
     fi
 
-    rm -rf /var/lib/snapd/cache/*
+    # Robustly clean Snap cache if the directory exists and is not empty
+    SNAP_CACHE_DIR="/var/lib/snapd/cache"
+    if [ -d "${SNAP_CACHE_DIR}" ]; then
+        if rm -rf "${SNAP_CACHE_DIR:?}/"*; then
+            println "Snap cache cleaned from ${SNAP_CACHE_DIR}"
+        else
+            print_err "Error: Failed to clean Snap cache at ${SNAP_CACHE_DIR}"
+        fi
+    else
+        println "Snap cache directory ${SNAP_CACHE_DIR} does not exist."
+    fi
 
     # List all snaps and filter for disabled ones
     snap list --all | awk '/disabled/{print $1, $3}' | while read -r snap_name revision; do
@@ -142,39 +152,29 @@ update_snapd() {
 update_os_pkg() {
     case "${ADJUSTED_ID}" in
     debian)
-        if [ "$(find /var/lib/apt/lists/* -maxdepth 1 -type f 2>/dev/null | wc -l)" -eq 0 ]; then
-            println "Updating ${PKG_MGR_CMD} based packages..."
-            if ! ("${PKG_MGR_CMD}" update -y &&
-                "${PKG_MGR_CMD}" upgrade -y &&
-                "${PKG_MGR_CMD}" dist-upgrade -y &&
-                "${PKG_MGR_CMD}" autoremove -y &&
-                "${PKG_MGR_CMD}" autoclean -y); then
-                print_err "Error: Update failed."
-            fi
+        println "Updating ${PKG_MGR_CMD} based packages..."
+        if ! ("${PKG_MGR_CMD}" update -y &&
+            "${PKG_MGR_CMD}" upgrade -y &&
+            "${PKG_MGR_CMD}" dist-upgrade -y &&
+            "${PKG_MGR_CMD}" autoremove -y &&
+            "${PKG_MGR_CMD}" autoclean -y); then
+            print_err "Error: Update failed."
         fi
 
         update_snapd
         ;;
     rhel)
+        println "Updating ${PKG_MGR_CMD} based packages..."
         if [ "${PKG_MGR_CMD}" = "microdnf" ]; then
-            if [ "$(find /var/cache/yum/* -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null | wc -l)" -eq 0 ]; then
-                println "Running ${PKG_MGR_CMD} makecache..."
-                "${PKG_MGR_CMD}" makecache
+            if ! ("${PKG_MGR_CMD}" makecache); then
+                print_err "Error: Update failed."
             fi
         else
-            if [ "$(find "/var/cache/${PKG_MGR_CMD}"/* -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null | wc -l)" -eq 0 ]; then
-                println "Running ${PKG_MGR_CMD} check-update..."
-                set +e
-                "${PKG_MGR_CMD}" check-update
-                rc=$?
-                if [ $rc -ne 0 ] && [ $rc -ne 100 ]; then
-                    exit 1
-                fi
-                set -e
+            if ! ("${PKG_MGR_CMD}" check-update); then
+                print_err "Error: Update failed."
             fi
         fi
 
-        println "Updating ${PKG_MGR_CMD} based packages..."
         if ! ("${PKG_MGR_CMD}" update -y &&
             "${PKG_MGR_CMD}" upgrade -y &&
             "${PKG_MGR_CMD}" autoremove -y); then
@@ -182,20 +182,16 @@ update_os_pkg() {
         fi
         ;;
     alpine)
-        if [ "$(find /var/cache/apk/* 2>/dev/null | wc -l)" -eq 0 ]; then
-            println "Updating ${PKG_MGR_CMD} based packages..."
-            if ! ("${PKG_MGR_CMD}" update && "${PKG_MGR_CMD}" upgrade); then
-                print_err "Error: Update failed."
-            fi
+        println "Updating ${PKG_MGR_CMD} based packages..."
+        if ! ("${PKG_MGR_CMD}" update && "${PKG_MGR_CMD}" upgrade); then
+            print_err "Error: Update failed."
         fi
         ;;
     arch)
-        if [ "$(find /var/cache/pacman/pkg/* 2>/dev/null | wc -l)" -eq 0 ]; then
-            println "Updating ${PKG_MGR_CMD} based packages..."
-            if ! ("${PKG_MGR_CMD}" -Syu --noconfirm &&
-                "${PKG_MGR_CMD}" -Rns "$("${PKG_MGR_CMD}" -Qdtq)"); then
-                print_err "Error: Update failed."
-            fi
+        println "Updating ${PKG_MGR_CMD} based packages..."
+        if ! ("${PKG_MGR_CMD}" -Syu --noconfirm &&
+            "${PKG_MGR_CMD}" -Rns "$("${PKG_MGR_CMD}" -Qdtq)"); then
+            print_err "Error: Update failed."
         fi
         ;;
     *)
