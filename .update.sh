@@ -195,11 +195,14 @@ update_os_pkg() {
             print_err "Error: Update failed."
         fi
         # Remove orphaned packages if any exist
-        if [ -n "$("${PKG_MGR_CMD}" -Qdtq)" ]; then
-            if ! ("${PKG_MGR_CMD}" -Rns $("${PKG_MGR_CMD}" -Qdtq)); then
+        ORPHANS=$("${PKG_MGR_CMD}" -Qdtq)
+        rc=$?
+        if [ $rc -eq 0 ] && [ -n "${ORPHANS}" ]; then
+            if ! ("${PKG_MGR_CMD}" -Rns ${ORPHANS}); then
                 print_err "Error: Failed to remove orphaned packages."
             fi
-        fi
+        elif [ $rc -ne 1 ]; then
+            print_err "Error: Failed to detect orphaned packages (exit code $rc)."
         ;;
     *)
         print_err "Error: Unsupported or unrecognized Linux distribution: ${ADJUSTED_ID}"
