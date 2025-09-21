@@ -203,6 +203,7 @@ update_os_pkg() {
             fi
         elif [ $rc -ne 1 ]; then
             print_err "Error: Failed to detect orphaned packages (exit code $rc)."
+        fi
         ;;
     *)
         print_err "Error: Unsupported or unrecognized Linux distribution: ${ADJUSTED_ID}"
