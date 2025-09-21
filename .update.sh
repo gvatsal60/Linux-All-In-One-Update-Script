@@ -167,7 +167,7 @@ update_os_pkg() {
         println "Updating ${PKG_MGR_CMD} based packages..."
         if [ "${PKG_MGR_CMD}" = "microdnf" ]; then
             if ! ("${PKG_MGR_CMD}" makecache); then
-                print_err "Error: Update failed."
+                print_err "Error: Failed to update package cache."
             fi
         else
             "${PKG_MGR_CMD}" check-update
