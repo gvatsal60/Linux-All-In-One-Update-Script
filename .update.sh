@@ -82,7 +82,7 @@ cleanup_snapd() {
     # Robustly clean Snap cache if the directory exists and is not empty
     SNAP_CACHE_DIR="/var/lib/snapd/cache"
     if [ -d "${SNAP_CACHE_DIR}" ]; then
-        if rm -rf "${SNAP_CACHE_DIR:?}/"*; then
+        if rm -rf "${SNAP_CACHE_DIR}/"*; then
             println "Snap cache cleaned from ${SNAP_CACHE_DIR}"
         else
             print_err "Error: Failed to clean Snap cache at ${SNAP_CACHE_DIR}"
