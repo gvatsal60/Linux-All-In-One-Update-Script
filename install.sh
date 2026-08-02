@@ -3,7 +3,6 @@
 ###################################################################################################
 # File: install.sh
 # Author: [Vatsal Gupta (gvatsal60)]
-# Date: 11-Jul-2024
 # Description: This script updates shell configuration files based on the
 #              adjusted Linux distribution ID determined from /etc/os-release.
 ###################################################################################################

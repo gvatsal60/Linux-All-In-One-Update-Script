@@ -3,7 +3,6 @@
 ###################################################################################################
 # File: .update.sh
 # Author: Vatsal Gupta(@gvatsal60)
-# Date: 11-Jul-2024
 # Description: This script provides functions to update Linux distributions using their
 #              respective package managers.
 ###################################################################################################
