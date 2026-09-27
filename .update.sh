@@ -234,16 +234,28 @@ update_brew() {
         printf \"\\nBrew Diagnostics\\n\"
         brew doctor && brew missing"
 
-    # Safely drop privileges back to the normal user to run brew commands
-    if [ "${NON_ROOT_USER}" != "nobody" ] && [ "${NON_ROOT_USER}" != "root" ]; then
+    # Safely drop privileges back to the normal user to run brew commands.
+    # Homebrew refuses to run as root, so we must find a valid non-root user.
+    if [ "${NON_ROOT_USER}" != "nobody" ] && [ "${NON_ROOT_USER}" != "root" ] && id "${NON_ROOT_USER}" >/dev/null 2>&1; then
         if ! su - "${NON_ROOT_USER}" -s /bin/sh -c "${_brew_cmds}"; then
             print_err "Error: Brew commands failed for user ${NON_ROOT_USER}."
             return
         fi
     else
-        # Fallback if no valid non-root user was resolved
-        if ! eval "${_brew_cmds}"; then
-            print_err "Error: Brew commands failed."
+        # Fallback: try to detect the user that owns the Homebrew installation
+        _brew_owner=$(stat -c '%U' "${_brew_path}" 2>/dev/null || stat -f '%Su' "${_brew_path}" 2>/dev/null)
+        if [ -n "${_brew_owner}" ] && [ "${_brew_owner}" != "root" ] && [ "${_brew_owner}" != "nobody" ] && id "${_brew_owner}" >/dev/null 2>&1; then
+            if ! su - "${_brew_owner}" -s /bin/sh -c "${_brew_cmds}"; then
+                print_err "Error: Brew commands failed for user ${_brew_owner}."
+                return
+            fi
+        else
+            # No suitable non-root user could be resolved; Homebrew cannot run as root
+            print_err "Error: Unable to determine a non-root user to run Homebrew as."
+            print_err "Homebrew refuses to run as root. Please ensure a non-root user"
+            print_err "exists that owns the Homebrew installation, or run this script"
+            print_err "as a non-root user with sudo privileges."
+            print_err "Skipping brew updates."
             return
         fi
     fi
