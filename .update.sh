@@ -225,20 +225,20 @@ update_brew() {
         return
     fi
 
+    # Common brew commands to execute (escape $ to prevent early expansion)
+    _brew_cmds="
+        eval \"\$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)\"
+        brew update && brew upgrade && brew cleanup -s
+        echo \"\\nBrew Diagnostics\"
+        brew doctor && brew missing
+    "
+
     # Safely drop privileges back to the normal user to run brew commands
     if [ "${NON_ROOT_USER}" != "nobody" ] && [ "${NON_ROOT_USER}" != "root" ]; then
-        su - "${NON_ROOT_USER}" -c <<'EOF'
-            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-            brew update && brew upgrade && brew cleanup -s
-            echo "\nBrew Diagnostics"
-            brew doctor && brew missing
-EOF
+        su - "${NON_ROOT_USER}" -c "${_brew_cmds}"
     else
         # Fallback if no valid non-root user was resolved
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-        brew update && brew upgrade && brew cleanup -s
-        println "Brew Diagnostics"
-        brew doctor && brew missing
+        eval "${_brew_cmds}"
     fi
 }
 
