@@ -225,9 +225,15 @@ update_brew() {
         return
     fi
 
+    # Detect brew path dynamically to match check_command logic
+    _brew_path=$(command -v brew 2>/dev/null)
+    if [ -z "${_brew_path}" ] && [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+        _brew_path="/home/linuxbrew/.linuxbrew/bin/brew"
+    fi
+
     # Common brew commands to execute (escape $ to prevent early expansion)
     _brew_cmds="
-        eval \"\$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)\"
+        eval \"\$(${_brew_path} shellenv)\"
         brew update && brew upgrade && brew cleanup -s
         echo \"\\nBrew Diagnostics\"
         brew doctor && brew missing
