@@ -239,7 +239,7 @@ update_brew() {
 
     # Safely drop privileges back to the normal user to run brew commands
     if [ "${NON_ROOT_USER}" != "nobody" ] && [ "${NON_ROOT_USER}" != "root" ]; then
-        if ! su - "${NON_ROOT_USER}" -c "${_brew_cmds}"; then
+        if ! su - "${NON_ROOT_USER}" -s /bin/sh -c "${_brew_cmds}"; then
             print_err "Error: Brew commands failed for user ${NON_ROOT_USER}."
             return 1
         fi
