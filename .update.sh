@@ -40,30 +40,12 @@ print_err() {
     printf "\n${RED}%s${CLEAR}\n" "$*" >&2
 }
 
-# Function: check_cmd
-# Description: Checks if a specified command is available in the system.
-# Usage: check_cmd "command_name"
-check_cmd() {
-    command_name="$1"
-
-    if ! command -v "${command_name}" >/dev/null 2>&1; then
-        return 1
-    fi
-
-    return 0
-}
-
 # Function: check_command
 # Description: Checks if a specified command is available in the system.
 #              Prints a message indicating whether the command is installed.
 # Usage: check_command "command_name"
 check_command() {
     command_name="$1"
-
-    # Explicit handling for brew when run under a stripped sudo PATH
-    if [ "${command_name}" = "brew" ] && [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
-        return 0
-    fi
 
     if ! command -v "${command_name}" >/dev/null 2>&1; then
         print_err "${command_name} is not installed."
@@ -221,14 +203,16 @@ update_os_pkg() {
 update_brew() {
     println "Update Brew Formula's"
 
-    if ! check_command brew; then
-        return
-    fi
-
     # Detect brew path dynamically to match check_command logic
     _brew_path=$(command -v brew 2>/dev/null)
-    if [ -z "${_brew_path}" ] && [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
-        _brew_path="/home/linuxbrew/.linuxbrew/bin/brew"
+
+    if [ -z "${_brew_path}" ]; then
+        if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+            _brew_path="/home/linuxbrew/.linuxbrew/bin/brew"
+        else
+            print_err "brew is not installed."
+            return
+        fi
     fi
 
     # Common brew commands to execute (escape $ to prevent early expansion)
@@ -241,13 +225,13 @@ update_brew() {
     if [ "${NON_ROOT_USER}" != "nobody" ] && [ "${NON_ROOT_USER}" != "root" ]; then
         if ! su - "${NON_ROOT_USER}" -s /bin/sh -c "${_brew_cmds}"; then
             print_err "Error: Brew commands failed for user ${NON_ROOT_USER}."
-            return 1
+            return
         fi
     else
         # Fallback if no valid non-root user was resolved
         if ! eval "${_brew_cmds}"; then
             print_err "Error: Brew commands failed."
-            return 1
+            return
         fi
     fi
 }
