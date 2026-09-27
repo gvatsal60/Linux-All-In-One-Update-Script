@@ -232,12 +232,10 @@ update_brew() {
     fi
 
     # Common brew commands to execute (escape $ to prevent early expansion)
-    _brew_cmds="
-        eval \"\$(${_brew_path} shellenv)\"
+    _brew_cmds="eval \"\$(${_brew_path} shellenv)\"
         brew update && brew upgrade && brew cleanup -s
         echo \"\\nBrew Diagnostics\"
-        brew doctor && brew missing
-    "
+        brew doctor && brew missing"
 
     # Safely drop privileges back to the normal user to run brew commands
     if [ "${NON_ROOT_USER}" != "nobody" ] && [ "${NON_ROOT_USER}" != "root" ]; then
