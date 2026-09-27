@@ -40,19 +40,6 @@ print_err() {
     printf "\n${RED}%s${CLEAR}\n" "$*" >&2
 }
 
-# Function: check_cmd
-# Description: Checks if a specified command is available in the system.
-# Usage: check_cmd "command_name"
-check_cmd() {
-    command_name="$1"
-
-    if ! command -v "${command_name}" >/dev/null 2>&1; then
-        return 1
-    fi
-
-    return 0
-}
-
 # Function: check_command
 # Description: Checks if a specified command is available in the system.
 #              Prints a message indicating whether the command is installed.
@@ -216,13 +203,37 @@ update_os_pkg() {
 update_brew() {
     println "Update Brew Formula's"
 
-    if ! check_command brew; then
-        return
+    # Detect brew path dynamically to match check_command logic
+    _brew_path=$(command -v brew 2>/dev/null)
+
+    if [ -z "${_brew_path}" ]; then
+        if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+            _brew_path="/home/linuxbrew/.linuxbrew/bin/brew"
+        else
+            print_err "brew is not installed."
+            return
+        fi
     fi
 
-    brew update && brew upgrade && brew cleanup -s
-    println "Brew Diagnostics"
-    brew doctor && brew missing
+    # Common brew commands to execute (escape $ to prevent early expansion)
+    _brew_cmds="eval \"\$(${_brew_path} shellenv)\"
+        brew update && brew upgrade && brew cleanup -s
+        printf \"\\nBrew Diagnostics\\n\"
+        brew doctor && brew missing"
+
+    # Safely drop privileges back to the normal user to run brew commands
+    if [ "${NON_ROOT_USER}" != "nobody" ] && [ "${NON_ROOT_USER}" != "root" ]; then
+        if ! su - "${NON_ROOT_USER}" -s /bin/sh -c "${_brew_cmds}"; then
+            print_err "Error: Brew commands failed for user ${NON_ROOT_USER}."
+            return
+        fi
+    else
+        # Fallback if no valid non-root user was resolved
+        if ! eval "${_brew_cmds}"; then
+            print_err "Error: Brew commands failed."
+            return
+        fi
+    fi
 }
 
 # Function: update_vscode_ext
