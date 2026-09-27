@@ -216,13 +216,18 @@ update_os_pkg() {
 update_brew() {
     println "Update Brew Formula's"
 
-    if ! check_command brew; then
+    _brew_path=$(command -v brew 2>/dev/null)
+    if [ -z "${_brew_path}" ] && [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+        _brew_path="/home/linuxbrew/.linuxbrew/bin/brew"
+    fi
+    if [ -z "${_brew_path}" ]; then
+        print_err "brew is not installed."
         return
     fi
 
-    brew update && brew upgrade && brew cleanup -s
+    "${_brew_path}" update && "${_brew_path}" upgrade && "${_brew_path}" cleanup -s
     println "Brew Diagnostics"
-    brew doctor && brew missing
+    "${_brew_path}" doctor && "${_brew_path}" missing
 }
 
 # Function: update_vscode_ext
