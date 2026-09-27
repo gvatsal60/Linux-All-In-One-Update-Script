@@ -40,6 +40,19 @@ print_err() {
     printf "\n${RED}%s${CLEAR}\n" "$*" >&2
 }
 
+# Function: check_cmd
+# Description: Checks if a specified command is available in the system.
+# Usage: check_cmd "command_name"
+check_cmd() {
+    command_name="$1"
+
+    if ! command -v "${command_name}" >/dev/null 2>&1; then
+        return 1
+    fi
+
+    return 0
+}
+
 # Function: check_command
 # Description: Checks if a specified command is available in the system.
 #              Prints a message indicating whether the command is installed.
